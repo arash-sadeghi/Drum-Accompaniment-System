@@ -60,7 +60,6 @@ you should be able to see the app running.
 -  docker push drummercompanion.azurecr.io/drummercompanion
 - update docker image on azure: [link](https://stackoverflow.com/questions/57241655/switch-docker-image-in-azure-appservice)
 ### progress
-- 'Transformer assigns velocity successfully. Now integration part should be done. models weights too big for adding to git'
 - modifying CGAN to only output drum midi. The whole app will work as such. no more returning bass
 - CGAN might be clipping the end of songs. must be checked
 - __pycahce__ was geeting copied to docker. that was consuming space and throwing low disk space warning
