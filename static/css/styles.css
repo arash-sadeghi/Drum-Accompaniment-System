@@ -21,6 +21,12 @@ body, h1, p, form {
   }
   
   .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    max-width: 700px; 
   }
     
   h1 {
@@ -33,30 +39,91 @@ body, h1, p, form {
     font-size: 1.1rem;
     margin-bottom: 30px;
     color: #3d3d3d;
-    text-align: center;
-  }
+    text-align: justify; /* Justify the text alignment */
+    width: 100%; /* Make subtitles take the full width of the container */
+    max-width: 700px; /* Adjust the max-width to control the subtitle width */
+    margin: 0 auto; /* Center the subtitles horizontally */
+}
   
   form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     text-align: center;
+    align-items: center;
+    justify-content: center;
+    width: 100%; /* Make form take the full width of the container */
   }
   
-  .inputfile {
-    display: none;
+
+  select {
+    padding: 5px;
+    border: 1px solid #cccc;
+    border-radius: 40px;
+    align-items: center;
+    box-sizing: border-box; /* Include padding within the width */
+    font-size: 20px; /* Set the font size for the input text */
+    width: 200px; /* Adjust width as needed */
+    justify-content: center; /* Center elements horizontally */
+
   }
-  
+
+
+/* Style the custom button */
+.file-input-container label {
+  display: inline-block;
+  cursor: pointer;
+  background-color: #4CAF50; /* Button background color */
+  color: white; /* Button text color */
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  margin-left: 10px;
+  margin-top: 20px;
+}
+
+.file-input-container label:hover {
+  background-color: #45a049; /* Hover background color */
+}
+
+/* Hide the default file input */
+.inputfile {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+  form label, form select {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  /* label { */
+    /* background-color: #4CAF50; */
+    /* color: white; */
+    /* padding: 10px 20px; */
+    /* font-size: 1.2rem; */
+    /* border-radius: 5px; */
+    /* cursor: pointer; */
+    /* transition: background-color 0.3s ease; */
+  /* }   */
+
   label {
-    background-color: #4CAF50;
-    color: white;
+    /* background-color: #4CAF50; */
+    color: #3d3d3d;;
     padding: 10px 20px;
     font-size: 1.2rem;
     border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    /* cursor: pointer; */
+    /* transition: background-color 0.3s ease; */
   }
-  
+/*   
   label:hover {
     background-color: #45a049;
-  }
+  } */
   
   input[type="submit"] {
     background-color: #008CBA;
@@ -67,20 +134,14 @@ body, h1, p, form {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-top: 40px;
+    /* justify-content: center; */
+    margin: 0 auto;
+    width: 30%;
   }
 
-  input[type="submit"] {
-    background-color: #005F6B;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 40px;
-  }
-  
   .checkbox-container {
-    margin-top: 40px;
+    /* margin-top: 40px; */
   }
 
   .tabs {
@@ -89,7 +150,7 @@ body, h1, p, form {
     margin-top: 10px;
     justify-content: center; /* Center elements horizontally */
     position: fixed;
-    top: 0; /* Position at the top of the viewport */
+    top: 120px; /* Position at the top of the viewport */
     left: 50%; /* Position at the center horizontally */
     transform: translateX(-50%); /* Offset to center horizontally */
     width: 100%; /* Make the element span the entire width */
@@ -127,9 +188,29 @@ body, h1, p, form {
     border-radius: 10px;
     padding: 30px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    width: 700px;
+    position: fixed;
+    top: 200px; /* Position at the top of the viewport */
+    left: 50%; /* Position at the center horizontally */
+    transform: translateX(-50%); /* Offset to center horizontally */
+  
 }
 
 .tab-content.active {
     display: block;
 }
 
+#title{
+  justify-content: center; /* Center elements horizontally */
+  position: fixed;
+  top: 0; /* Position at the top of the viewport */
+  left: 50%; /* Position at the center horizontally */
+  transform: translateX(-50%); /* Offset to center horizontally */
+  width: 60%; /* Make the element span the entire width */
+
+
+  background-color: rgba(255, 255, 255, 0.6); /* Semi-transparent white background */
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}

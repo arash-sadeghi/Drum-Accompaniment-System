@@ -11,6 +11,7 @@
 <body>
 
   <div class="container">
+    <h1 id="title">Drum Generator for Your Bass Track</h1>
 
     <div class="tabs">
       <button class="tab-button active" onclick="openTab('offline-tab', this)">Offline Drum Accompaniment</button>
@@ -18,16 +19,20 @@
     </div>
 
     <div id="offline-tab" class="tab-content active">
-      <h1>Drum Generator for Your Bass Track</h1>
-      <p class="subtitle">Upload a bass track MIDI file and get a drum track.</p>
+      <!-- <p class="subtitle">Upload a bass track MIDI file and get a drum track.</p>
       <p class="subtitle"> Make sure your bass track is in tempo 100 and rhythm 4/4.</p>
-      <p class="subtitle"> If you get a empty midi file back, it means your input track is not long enough. Minimum number of measures are 20 measures with beat resolution of 4</p>
-      <form method="post" action="/" enctype="multipart/form-data">
-        <input type="file" name="file" id="file" class="inputfile" required>
-        <label for="file">Choose a file</label>
-         
-        <p></p>
-        
+      <p class="subtitle"> If you get a empty midi file back, it means your input track</p>
+      <p class="subtitle"> is not long enough. Minimum number of measures are 20 measures with beat resolution of 4</p> -->
+
+      <p class="subtitle">Upload a bass track MIDI file and get a drum track.
+      Make sure your bass track is in tempo 100 and rhythm 4/4.</p>
+
+      <form method="post" action="/offline" enctype="multipart/form-data">
+
+        <div class="file-input-container">
+          <label for="file">Choose a file</label>
+          <input type="file" name="file" id="file" class="inputfile" required>
+        </div>
         <div class="checkbox-container">
           <input type="checkbox" id="assing-velocity" name="assing-velocity">
           <label for="inform-backend">Assign Velocity to Drum Track</label>
@@ -39,6 +44,31 @@
 
     <div id="realtime-tab" class="tab-content">
       <h1>Real-time</h1>
+
+      <form method="post" action="/realtime" enctype="multipart/form-data">
+        <div>
+          <label for="midiin">Choose MIDI in port</label>
+          <!-- <input type="text" name="midiin" id="midiin" required> -->
+          <select name="midiin" id="midiin" required>
+            {% for port in midi_ports %}
+              <option value="{{ port }}">{{ port }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label for="midiin" >Choose MIDI out port</label>
+          <select name="midiout" id="midiout"  required>
+            {% for port in midi_ports %}
+              <option value="{{ port }}">{{ port }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <p></p>
+        
+        <input type="submit" name="submit" value="Start">
+      </form>
+
     </div>
 
   </div>

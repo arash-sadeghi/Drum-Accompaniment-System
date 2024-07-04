@@ -22,3 +22,30 @@ function openTab(tabId, element) {
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('offline-tab').style.display = "block";
 });
+
+// const form = document.getElementById('realtime-tab');
+
+// form.addEventListener('submit', (event) => {
+//   event.preventDefault(); // Prevent default form submission behavior
+
+//   const text1 = document.getElementById('midiin').value;
+//   const text2 = document.getElementById('midiout').value;
+
+//   // Prepare the data to send (can be JSON or form data)
+//   const data = { text1, text2 }; // Example using an object
+
+//   fetch('/realtime', { // Replace '/submit' with your actual route
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json' // Set content type for JSON data
+//     },
+//     body: JSON.stringify(data) // Convert data to JSON string
+//   })
+//   .then(response => response.json()) // Parse response as JSON
+//   .then(data => {
+//     console.log('Success:', data); // Handle successful response
+//   })
+//   .catch(error => {
+//     console.error('Error:', error); // Handle errors
+//   });
+// });

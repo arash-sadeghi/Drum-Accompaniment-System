@@ -10,9 +10,8 @@ Flask then builds upon this foundation to provide a complete web framework.
 
 from flask import Flask, render_template, request, redirect, flash, send_file, make_response
 from werkzeug.utils import secure_filename
-from models.Predict import Predictor
+from models.Predict import Predictor , get_available_ports
 import os
-from models.Predict import Predictor
 # from models.Velocity_assigner.assign_velocity import VelocityAssigner
 
 import flaskwebgui
@@ -46,9 +45,19 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 #Note that render_template means it looks for the file in the templates folder. 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html' ,  midi_ports=get_available_ports()['inports'])
 
-@app.route('/', methods=['POST'])
+@app.route('/realtime', methods=['POST'])
+def realtime():
+    midiin = request.form.get('midiin')
+    midiout = request.form.get('midiout')
+    print(midiin,midiout)
+    predictor.set_midi_io(midiin,midiout)
+    predictor.real_time_loop()
+    return redirect('/')
+
+
+@app.route('/offline', methods=['POST'])
 def submit_file():
     global res_path
     if request.method == 'POST':
@@ -112,7 +121,7 @@ if __name__ == "__main__":
     # port = int(os.environ.get('PORT', 3009)) #Define port so we can map container port to localhost
     # app.run(host='0.0.0.0', port=port)  #Define 0.0.0.0 for Docker
 
-    app.run()
+    app.run(debug=True)
     # gui.run(host='0.0.0.0')
     # flaskwebgui.FlaskUI(app=app, server="flask", width=800, height=600).run()
 

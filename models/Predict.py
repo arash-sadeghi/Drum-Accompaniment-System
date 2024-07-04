@@ -23,10 +23,9 @@ import os
 
 # from Velocity_assigner.assign_velocity import VelocityAssigner
 
-MIDI_OUT_PORT = 'IAC Driver Bus 2'
-# MIDI_INPUT_PORT = 'Oxygen 61'
-MIDI_INPUT_PORT = 'A-PRO 1'
-# MIDI_INPUT_PORT = 'IAC Driver Bus 1'
+from mido import get_input_names, get_output_names
+
+
 TIME_WINDOW = 10
 
 
@@ -42,13 +41,21 @@ class Predictor:
     EXECUTION_TIME = ctime(time()).replace(':','_').replace(' ','_')
     RES_PATH = os.path.join(ROOT,'results')
     SAVE_PATH = os.path.join(RES_PATH,f'generated_drum_{GENRE}_{EXECUTION_TIME}')
+    
     def __init__(self) -> None:
         print("[+] Predict ROOT",Predictor.ROOT)
         self.generator = Generator()    
         self.generator.load_state_dict(torch.load(Predictor.WEIGHT_PATH , map_location=torch.device('cpu'))) #TODO specific to cpu machine only
         self.generator.eval() #! this solve error thrown by data length
+        self._MIDI_OUT_PORT = ''
+        self._MIDI_INPUT_PORT = ''
 
-    
+    def set_midi_io(self,midiin,midiout):
+        # self._MIDI_OUT_PORT = 'IAC Driver Bus 2'
+        # self._MIDI_INPUT_PORT = 'A-PRO 1'
+        self._MIDI_OUT_PORT = midiout
+        self._MIDI_INPUT_PORT = midiin
+
     def generate_drum(self, bass_piano_roll = None, tempo_array = None, bass_url = None):
         print("[+] Predictor predicting offline drum")
         if not bass_url is None:
@@ -199,16 +206,20 @@ class Predictor:
         return midi_to_piano_roll(midi_data = pm_data) #! problem
 
     def real_time_loop(self):
+        if self._MIDI_OUT_PORT == '' or self._MIDI_INPUT_PORT == '':
+            print("[-] MIDI IO ports not allocated")
+
+        print("[+] real_time_loop started")
         self.stop_listening = False
-        self.midi_port_out = mido.open_output(MIDI_OUT_PORT)
-        self.midi_port_in = mido.open_input(MIDI_INPUT_PORT)
+        self.midi_port_out = mido.open_output(self._MIDI_OUT_PORT)
+        self.midi_port_in = mido.open_input(self._MIDI_INPUT_PORT)
         self.lock = threading.Lock()
         self.processing_queue = queue.Queue()
         self.processing_thread = threading.Thread(target=self.publish_midi)
         self.processing_thread.start()
 
         while not self.stop_listening :
-            print(f"[+] listening to bass for {TIME_WINDOW} seconds")
+            print(f"[+] listening to bass for {TIME_WINDOW} seconds from port {self._MIDI_INPUT_PORT}")
             piano_roll , tempo = self.listen()
 
             print("[+] generating drum")
@@ -226,7 +237,10 @@ def replace_drum(DB_path, D_path, output_path, vels):
     for note_counter in range(len(DB.instruments[0].notes)):
         DB.instruments[0].notes[note_counter].velocity = vels[note_counter]
     DB.write(output_path)
-
+def get_available_ports():
+    inports = get_input_names()
+    outports = get_output_names()
+    return {'inports': inports , 'outports':outports}
 
 if __name__ == '__main__':
     predictor = Predictor()
