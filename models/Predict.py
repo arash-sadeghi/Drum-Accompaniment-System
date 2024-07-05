@@ -1,10 +1,10 @@
-from models.Generator import Generator
-from models.midi2pianoroll import midi_to_piano_roll, plot_multitrack
-from models.CONST_VARS import CONST
+# from models.Generator import Generator
+# from models.midi2pianoroll import midi_to_piano_roll, plot_multitrack
+# from models.CONST_VARS import CONST
 
-# from Generator import Generator
-# from midi2pianoroll import midi_to_piano_roll , plot_multitrack
-# from CONST_VARS import CONST
+from Generator import Generator
+from midi2pianoroll import midi_to_piano_roll , plot_multitrack
+from CONST_VARS import CONST
 
 import matplotlib.pyplot as plt
 
@@ -26,7 +26,7 @@ import os
 from mido import get_input_names, get_output_names
 
 
-TIME_WINDOW = 10
+TIME_WINDOW = 30
 
 
 class Predictor:
@@ -47,8 +47,8 @@ class Predictor:
         self.generator = Generator()    
         self.generator.load_state_dict(torch.load(Predictor.WEIGHT_PATH , map_location=torch.device('cpu'))) #TODO specific to cpu machine only
         self.generator.eval() #! this solve error thrown by data length
-        self._MIDI_OUT_PORT = ''
-        self._MIDI_INPUT_PORT = ''
+        self._MIDI_OUT_PORT = 'IAC Driver Bus 2'
+        self._MIDI_INPUT_PORT = 'IAC Driver Bus 1'
 
     def set_midi_io(self,midiin,midiout):
         # self._MIDI_OUT_PORT = 'IAC Driver Bus 2'
@@ -130,10 +130,10 @@ class Predictor:
     def publish_midi(self):
         while not self.stop_listening :
             publish_duration = time()
-            if self.processing_queue.qsize() == 0:
+            if self.processing_queue_2Bpublished.qsize() == 0:
                 continue
-            pretty_midi_messages = self.processing_queue.get()  # Get messages from the queue
-            self.processing_queue.task_done()  # Mark the task as done
+            pretty_midi_messages = self.processing_queue_2Bpublished.get()  # Get messages from the queue
+            self.processing_queue_2Bpublished.task_done()  # Mark the task as done
 
             # pretty_midi_messages = pretty_midi.PrettyMIDI('test.midi')
             drum = None
@@ -172,38 +172,64 @@ class Predictor:
             print(f"[+][PUBLISHER] publishing duration ----> {time()- publish_duration}")
     
     def listen(self):
-        listen_start_time = time()
-        pm_data = pretty_midi.PrettyMIDI()  # Create empty PrettyMIDI object
-        bass = pretty_midi.Instrument(program=33) #! 33 is bass program code. got from CGAN repo
-        start_time = time()
-        end_time = start_time + TIME_WINDOW  # Listen for 10 seconds
-        ons = {} #* this dictionary enables us to capture cords
-        for message in self.midi_port_in:
-            # print(f"[+][Listener] on time {time()-start_time} message {message}")
-            if time() >= end_time:
-                break
-            # track.append(message)
-            elif message.type == 'note_on':
-                note_beg = time() - start_time
-                ons[str(message.note)] = note_beg
+        '''
+        Purpose: 
+            Listens to MIDI port and gathers midi notes for the duration of TIME_WINDOW
+        Parameters: None
+        Raises: None
+        Effect: 
+            writing into self.processing_queue_listened_midi
+        Return: 
+            Piano roll representation of listened MIDI messages
+        Note: 
+            process_begin_time begins after gathering MIDI.
+        '''
+        while not self.stop_listening:
+            # message = self.midi_port_in.receive()
+            listen_start_time = time()
+            pm_data = pretty_midi.PrettyMIDI()  # Create empty PrettyMIDI object
+            bass = pretty_midi.Instrument(program=33) #! 33 is bass program code. got from CGAN repo
+            start_time = time()
+            end_time = start_time + TIME_WINDOW  # Listen for 10 seconds
+            ons = {} #* this dictionary enables us to capture cords
 
-            elif message.type == 'note_off':
-                if str(message.note) in ons.keys():
-                    note_end = time() - start_time
-                    note = pretty_midi.Note(
-                        velocity=message.velocity, #! this is not accurate becuse note on and note off velocities are different
-                        pitch=message.note,
-                        start=ons[str(message.note)],
-                        end=note_end
-                        )
+            # while time() < end_time:
+            #     for message in self.midi_port_in.iter_pending():
 
-                    bass.notes.append(note)  # Append note to first instrument
+            for message in self.midi_port_in:
+                # print(f"[+][Listener] on time {time()-start_time} message {message}")
+                if time() >= end_time:
+                    print(f"[debug] time over. start {start_time} end {end_time}, curr {time()} , dur {end_time-start_time}")
+                    if len(bass.notes) == 0: #! if the bass notes are empty, dont return it, go back and listen from the beggining
+                        start_time = time()
+                        end_time = start_time + TIME_WINDOW  # Listen for 10 seconds
+                        continue
 
-        self.process_begin_time = time()
-        pm_data.instruments.append(bass)
-        print(f"[+][Listener] number of midi messages listener received {len(bass.notes)} listening duration {time()-listen_start_time}")
-        pm_data.write(os.path.join(Predictor.RES_PATH,"listened_midi.midi")) #* no problem here
-        return midi_to_piano_roll(midi_data = pm_data) #! problem
+                    break #! if bass notes are not empty then break it for processing
+
+                # track.append(message)
+                elif message.type == 'note_on':
+                    note_beg = time() - start_time
+                    ons[str(message.note)] = note_beg
+
+                elif message.type == 'note_off':
+                    if str(message.note) in ons.keys():
+                        note_end = time() - start_time
+                        note = pretty_midi.Note(
+                            velocity=message.velocity, #! this is not accurate becuse note on and note off velocities are different
+                            pitch=message.note,
+                            start=ons[str(message.note)],
+                            end=note_end
+                            )
+
+                        bass.notes.append(note)  # Append note to first instrument
+
+            self.process_begin_time = time()
+            pm_data.instruments.append(bass)
+            print(f"[+][Listener] number of midi messages listener received {len(bass.notes)} listening duration {time()-listen_start_time} note time duration {bass.notes[0].start - bass.notes[-1].end}")
+            pm_data.write(os.path.join(Predictor.RES_PATH,"listened_midi.midi")) #* no problem here
+            piano_roll , tempo = midi_to_piano_roll(midi_data = pm_data) #! problem
+            self.processing_queue_listened_midi.put({'piano_roll' , piano_roll , 'tempo' , tempo})
 
     def real_time_loop(self):
         if self._MIDI_OUT_PORT == '' or self._MIDI_INPUT_PORT == '':
@@ -213,20 +239,36 @@ class Predictor:
         self.stop_listening = False
         self.midi_port_out = mido.open_output(self._MIDI_OUT_PORT)
         self.midi_port_in = mido.open_input(self._MIDI_INPUT_PORT)
+
         self.lock = threading.Lock()
-        self.processing_queue = queue.Queue()
+        self.processing_queue_2Bpublished = queue.Queue()
         self.processing_thread = threading.Thread(target=self.publish_midi)
         self.processing_thread.start()
 
+        self.processing_queue_listened_midi = queue.Queue()
+        self.processing_thread_listen = threading.Thread(target=self.listen)
+        self.processing_thread_listen.start()
+
+        # self.processing_queue_drum_gen = queue.Queue()
+        # self.processing_thread_listen = threading.Thread(target=self.listen)
+        # self.processing_thread_listen.start()
+
         while not self.stop_listening :
-            print(f"[+] listening to bass for {TIME_WINDOW} seconds from port {self._MIDI_INPUT_PORT}")
-            piano_roll , tempo = self.listen()
+            # print(f"[+] listening to bass for {TIME_WINDOW} seconds from port {self._MIDI_INPUT_PORT}")
+            # piano_roll , tempo = self.listen()
+            if self.processing_queue_listened_midi.qsize() == 0:
+                continue
+            
+            recieved_painoroll = self.processing_queue_listened_midi.get()  # Get messages from the queue
+            self.processing_queue_listened_midi.task_done()  # Mark the task as done
+            print(f"[+] Got from listenere: {recieved_painoroll}")
+
 
             print("[+] generating drum")
-            drum_midi , _ , _ = self.generate_drum(piano_roll , tempo)
+            drum_midi , _ , _ = self.generate_drum(recieved_painoroll["piano_roll"] , recieved_painoroll["tempo"])
 
             print("[+] sent to publish in queue")
-            self.processing_queue.put(drum_midi)
+            self.processing_queue_2Bpublished.put(drum_midi)
 
 
 def replace_drum(DB_path, D_path, output_path, vels):
@@ -243,8 +285,15 @@ def get_available_ports():
     return {'inports': inports , 'outports':outports}
 
 if __name__ == '__main__':
+    """
+    # offline example
     predictor = Predictor()
     res_path = predictor.generate_drum(bass_url = '/Users/arashsadeghiamjadi/Desktop/WORKDIR/JamBuddy/Server_App/models/results/user_file.midi')
+    """
+
+    predictor = Predictor()
+    predictor.real_time_loop()
+
     # print("res_path",res_path)
 
 #     p = Predictor()

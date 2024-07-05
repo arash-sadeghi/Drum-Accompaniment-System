@@ -1,8 +1,8 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-# from CONST_VARS import CONST
-from models.CONST_VARS import CONST
+from CONST_VARS import CONST
+# from models.CONST_VARS import CONST
 
 import torch
 class GeneraterBlock(nn.Module):
