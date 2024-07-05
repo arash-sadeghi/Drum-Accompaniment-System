@@ -183,53 +183,49 @@ class Predictor:
             Piano roll representation of listened MIDI messages
         Note: 
             process_begin_time begins after gathering MIDI.
+        Todo: empty measures are ignored and not generated. This should be resolved in future by sending an empty measure.
         '''
         while not self.stop_listening:
             # message = self.midi_port_in.receive()
-            listen_start_time = time()
+            listen_start_time = time() #! since generator only generates independent windows of music, each music window can be relative and start from 0
             pm_data = pretty_midi.PrettyMIDI()  # Create empty PrettyMIDI object
             bass = pretty_midi.Instrument(program=33) #! 33 is bass program code. got from CGAN repo
             start_time = time()
             end_time = start_time + TIME_WINDOW  # Listen for 10 seconds
             ons = {} #* this dictionary enables us to capture cords
 
-            # while time() < end_time:
-            #     for message in self.midi_port_in.iter_pending():
+            while time() < end_time:
+                # print(f'[+] passed time percentage {100-(end_time-time())/TIME_WINDOW*100}')
+                for message in self.midi_port_in.iter_pending():
+                    if time()>= end_time: #! without this the message loop will avoid time loop from evaluating time duration
+                        break #! from for message in self.midi_port_in.iter_pending():
+                    if message.type == 'note_on':
+                        note_beg = time() - start_time
+                        ons[str(message.note)] = note_beg
 
-            for message in self.midi_port_in:
-                # print(f"[+][Listener] on time {time()-start_time} message {message}")
-                if time() >= end_time:
-                    print(f"[debug] time over. start {start_time} end {end_time}, curr {time()} , dur {end_time-start_time}")
-                    if len(bass.notes) == 0: #! if the bass notes are empty, dont return it, go back and listen from the beggining
-                        start_time = time()
-                        end_time = start_time + TIME_WINDOW  # Listen for 10 seconds
-                        continue
+                    elif message.type == 'note_off':
+                        if str(message.note) in ons.keys():
+                            note_end = time() - start_time
+                            note = pretty_midi.Note(
+                                velocity=message.velocity, #! this is not accurate becuse note on and note off velocities are different
+                                pitch=message.note,
+                                start=ons[str(message.note)],
+                                end=note_end
+                                )
 
-                    break #! if bass notes are not empty then break it for processing
+                            bass.notes.append(note)  # Append note to first instrument
 
-                # track.append(message)
-                elif message.type == 'note_on':
-                    note_beg = time() - start_time
-                    ons[str(message.note)] = note_beg
+            if len(bass.notes) == 0: #! if the bass notes are empty, dont return it, go back and listen from 
+                print("[+] bass notes were empty")
+                continue
 
-                elif message.type == 'note_off':
-                    if str(message.note) in ons.keys():
-                        note_end = time() - start_time
-                        note = pretty_midi.Note(
-                            velocity=message.velocity, #! this is not accurate becuse note on and note off velocities are different
-                            pitch=message.note,
-                            start=ons[str(message.note)],
-                            end=note_end
-                            )
-
-                        bass.notes.append(note)  # Append note to first instrument
-
+            print(f"[debug] time over. start {start_time} end {end_time}, curr {time()} , dur {end_time-start_time}")
             self.process_begin_time = time()
             pm_data.instruments.append(bass)
-            print(f"[+][Listener] number of midi messages listener received {len(bass.notes)} listening duration {time()-listen_start_time} note time duration {bass.notes[0].start - bass.notes[-1].end}")
+            print(f"[+][Listener] number of midi messages listener received {len(bass.notes)} listening duration {time()-listen_start_time} note time duration {bass.notes[-1].end - bass.notes[0].start}")
             pm_data.write(os.path.join(Predictor.RES_PATH,"listened_midi.midi")) #* no problem here
             piano_roll , tempo = midi_to_piano_roll(midi_data = pm_data) #! problem
-            self.processing_queue_listened_midi.put({'piano_roll' , piano_roll , 'tempo' , tempo})
+            self.processing_queue_listened_midi.put({'piano_roll' : piano_roll , 'tempo' : tempo})
 
     def real_time_loop(self):
         if self._MIDI_OUT_PORT == '' or self._MIDI_INPUT_PORT == '':
