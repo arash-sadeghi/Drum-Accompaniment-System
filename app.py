@@ -8,13 +8,15 @@ there's an exception, even providing an interactive debugger that runs in the br
 Flask then builds upon this foundation to provide a complete web framework.
 """
 
-from flask import Flask, render_template, request, redirect, flash, send_file, make_response
+from flask import Flask, render_template, request, redirect, flash, jsonify, make_response, url_for,session
 from werkzeug.utils import secure_filename
 from models.Predict import Predictor , get_available_ports
 import os
 # from models.Velocity_assigner.assign_velocity import VelocityAssigner
 
 import flaskwebgui
+
+from flask_session import Session
 
 predictor = Predictor()
 # va = VelocityAssigner()
@@ -26,6 +28,13 @@ ROOT = os.path.dirname(os.path.abspath(__file__)) #!root path. this is for deplo
 #Create an app object using the Flask class. 
 app = Flask(__name__, static_folder="static")
 # gui =  flaskwebgui.FlaskUI(app)
+
+# Configure the secret key for encryption (required by Flask-Session)
+app.config['SECRET_KEY'] = 'your_secret_key_here'
+
+# Configure Flask-Session to use filesystem (you can use other backends as per your needs)
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
 
 #Add reference fingerprint. 
 #Cookies travel with a signature that they claim to be legit. 
@@ -45,17 +54,65 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 #Note that render_template means it looks for the file in the templates folder. 
 @app.route('/')
 def index():
-    return render_template('index.html' ,  midi_ports=get_available_ports()['inports'])
+    session['tab'] = 'offline'  # Initialize or update session variable
+    return render_template('index.html' ,  midi_ports=get_available_ports()['inports'],active_tab=session.get('tab'))
+
+# @app.route('/realtime', methods=['GET', 'POST'])
+# def realtime():
+#     print(">"*10,request.method )
+#     if request.method == 'POST':
+#         action = request.form['submit']  # Get the value of the clicked button
+
+#         if action == 'Start':
+#             midiin = request.form.get('midiin')
+#             midiout = request.form.get('midiout')
+#             print(f"[+][app.py] real time button pressed. Listening to {midiin} and out to {midiout}")
+#             predictor.set_midi_io(midiin,midiout)
+#             predictor.real_time_setup()
+#             # return redirect('/')
+#             print(url_for('realtime'))
+#             session['tab'] = 'realtime'  # Store the active tab in session
+#             return redirect(url_for('realtime'))  # Redirect to the same page after processing
+
+#         elif action == 'Stop':
+#             predictor.stop_real_time()
+#             session['tab'] = 'realtime'  # Store the active tab in session
+#             return redirect(url_for('realtime'))  # Redirect to the same page after processing
+
+#     if request.method == 'GET':
+#         session['tab'] = 'offline' if 'tab' not in session else session['tab']  # Restore active tab from session
+#         print("session",session)
+#         return render_template('index.html' ,  midi_ports=get_available_ports()['inports'], active_tab=session.get('tab'))
 
 @app.route('/realtime', methods=['POST'])
 def realtime():
-    midiin = request.form.get('midiin')
-    midiout = request.form.get('midiout')
-    print(midiin,midiout)
-    predictor.set_midi_io(midiin,midiout)
-    predictor.real_time_loop()
-    return redirect('/')
+    print(">"*10,request.method )
+    if request.method == 'POST':
+        data = request.json
+        action = data.get('action')
 
+        if action == 'Start':
+            midiin = data.get('midiin')
+            midiout = data.get('midiout')
+            # midiin = request.form.get('midiin')
+            # midiout = request.form.get('midiout')
+            print(f"[+][app.py] real time button pressed. Listening to {midiin} and out to {midiout}")
+            predictor.set_midi_io(midiin,midiout)
+            predictor.real_time_setup()
+            # return redirect('/')
+            print(url_for('realtime'))
+            session['tab'] = 'realtime'  # Store the active tab in session
+            # return jsonify({'status': 'success', 'active_tab': 'realtime'})
+
+        elif action == 'Stop':
+            predictor.stop_real_time()
+            session['tab'] = 'realtime'  # Store the active tab in session
+            # return jsonify({'status': 'success', 'active_tab': 'realtime'})
+            print(f"[+][app.py] real time stopped")
+
+
+
+        return jsonify(success=True)
 
 @app.route('/offline', methods=['POST'])
 def submit_file():

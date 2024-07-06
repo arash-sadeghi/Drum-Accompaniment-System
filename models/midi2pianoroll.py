@@ -1,8 +1,8 @@
 import pretty_midi
 import pypianoroll
 
-# from models.CONST_VARS import CONST
-from CONST_VARS import CONST
+from models.CONST_VARS import CONST
+# from CONST_VARS import CONST
 
 import os
 import matplotlib.pyplot as plt

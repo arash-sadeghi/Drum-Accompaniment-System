@@ -16,12 +16,83 @@ function openTab(tabId, element) {
     document.getElementById(tabId).style.display = "block";
     document.getElementById(tabId).classList.add('active');
     element.classList.add('active');
+
+    for (let i = 0; i < tabButtons.length; i++) {
+        console.log("xtab buttons",tabButtons[i]);
+    }
+
 }
 
 // Initialize the first tab as active
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('offline-tab').style.display = "block";
+
+    const startButton = document.getElementById('start-btn');
+    const stopButton = document.getElementById('stop-btn');
+    const messageElement = document.getElementById('message');
+  
+
+    function startRealTime() {
+        console.log("startRealTime starting")
+        const midiIn = document.getElementById('midiin').value;
+        const midiOut = document.getElementById('midiout').value;
+    
+        fetch('/realtime', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ action:'Start' , midiin: midiIn, midiout: midiOut }),
+        })
+          .then((response) => {
+            if (response.ok) {
+              messageElement.innerText = 'Real-time processing started successfully!';
+              messageElement.style.display = 'block';
+              toggleButtons();
+            } else {
+              throw new Error('Failed to start real-time processing');
+            }
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+      }
+    
+    function stopRealTime() {
+        fetch('/realtime', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ action:'Stop' }),
+        })
+        .then((response) => {
+            if (response.ok) {
+                messageElement.innerText = 'Real-time processing stopped!';
+                messageElement.style.display = 'block';
+                toggleButtons();
+            } else {
+                throw new Error('Failed to stop real-time processing');
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+        
+        toggleButtons();
+    }
+
+    function toggleButtons() {
+        console.log('buttons will toggle. now:',startButton.disabled,stopButton.disabled)
+        startButton.disabled = !startButton.disabled;
+        stopButton.disabled = !stopButton.disabled;
+    }
+
+    startButton.addEventListener('click', startRealTime);
+    stopButton.addEventListener('click', stopRealTime);
+    console.log("start stop situation",startButton.disabled,stopButton.disabled)
 });
+
 
 // const form = document.getElementById('realtime-tab');
 
@@ -48,4 +119,31 @@ document.addEventListener('DOMContentLoaded', () => {
 //   .catch(error => {
 //     console.error('Error:', error); // Handle errors
 //   });
+// });
+
+
+
+// document.getElementById('realtime-form').addEventListener('submit', function (event) {
+//     event.preventDefault();
+
+//     const formData = new FormData(event.target);
+//     const action = formData.get('submit');
+//     console.log("action",action);
+//     fetch('/realtime', {    
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({ action: action })
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         console.log("received data",data)
+//         if (data.status === 'success') {
+//             document.getElementById('stop-button').disabled = false;
+//             document.querySelector('input[name="submit"]').disabled = true;
+//             openTab('realtime-tab', document.querySelector('.tab-button.active'));
+//         }
+//     })
+//     .catch(error => console.error('Error:', error));
 // });

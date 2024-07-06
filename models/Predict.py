@@ -1,10 +1,10 @@
-# from models.Generator import Generator
-# from models.midi2pianoroll import midi_to_piano_roll, plot_multitrack
-# from models.CONST_VARS import CONST
+from models.Generator import Generator
+from models.midi2pianoroll import midi_to_piano_roll, plot_multitrack
+from models.CONST_VARS import CONST
 
-from Generator import Generator
-from midi2pianoroll import midi_to_piano_roll , plot_multitrack
-from CONST_VARS import CONST
+# from Generator import Generator
+# from midi2pianoroll import midi_to_piano_roll , plot_multitrack
+# from CONST_VARS import CONST
 
 import matplotlib.pyplot as plt
 
@@ -14,7 +14,7 @@ from pypianoroll import Multitrack, BinaryTrack
 
 import pretty_midi
 import mido
-from time import time , ctime
+from time import time , ctime, sleep
 
 import threading
 import queue
@@ -123,8 +123,6 @@ class Predictor:
 
         output_midi_drum_name = Predictor.SAVE_PATH+'D.midi'
         multi_track_drum.to_pretty_midi().write(output_midi_drum_name)
-
-        print("[+] Predictor Done")
         return DB_midi , output_midi_name , output_midi_drum_name
     
     def publish_midi(self):
@@ -227,7 +225,24 @@ class Predictor:
             piano_roll , tempo = midi_to_piano_roll(midi_data = pm_data) #! problem
             self.processing_queue_listened_midi.put({'piano_roll' : piano_roll , 'tempo' : tempo})
 
-    def real_time_loop(self):
+    def generate_drum_thread(self):
+        while not self.stop_listening :
+            if self.processing_queue_listened_midi.qsize() == 0:
+                continue
+
+            recieved_painoroll = self.processing_queue_listened_midi.get()  # Get messages from the queue
+            self.processing_queue_listened_midi.task_done()  # Mark the task as done
+            print(f"[Predictor] Got from listenere: {recieved_painoroll}")
+
+
+            print("[Predictor] generating drum")
+            drum_midi , _ , _ = self.generate_drum(recieved_painoroll["piano_roll"] , recieved_painoroll["tempo"])
+
+            print("[Predictor] sent to publish in queue")
+            self.processing_queue_2Bpublished.put(drum_midi)
+
+        
+    def real_time_setup(self):
         if self._MIDI_OUT_PORT == '' or self._MIDI_INPUT_PORT == '':
             print("[-] MIDI IO ports not allocated")
 
@@ -245,26 +260,18 @@ class Predictor:
         self.processing_thread_listen = threading.Thread(target=self.listen)
         self.processing_thread_listen.start()
 
-        # self.processing_queue_drum_gen = queue.Queue()
-        # self.processing_thread_listen = threading.Thread(target=self.listen)
-        # self.processing_thread_listen.start()
-
-        while not self.stop_listening :
-            # print(f"[+] listening to bass for {TIME_WINDOW} seconds from port {self._MIDI_INPUT_PORT}")
-            # piano_roll , tempo = self.listen()
-            if self.processing_queue_listened_midi.qsize() == 0:
-                continue
-            
-            recieved_painoroll = self.processing_queue_listened_midi.get()  # Get messages from the queue
-            self.processing_queue_listened_midi.task_done()  # Mark the task as done
-            print(f"[+] Got from listenere: {recieved_painoroll}")
+        self.processing_thread_drum_gen = threading.Thread(target=self.generate_drum_thread)
+        self.processing_thread_drum_gen.start()
 
 
-            print("[+] generating drum")
-            drum_midi , _ , _ = self.generate_drum(recieved_painoroll["piano_roll"] , recieved_painoroll["tempo"])
 
-            print("[+] sent to publish in queue")
-            self.processing_queue_2Bpublished.put(drum_midi)
+    def stop_real_time(self):
+        print("[Predictor] stopping realtime loop ... ")
+        self.stop_listening = True
+        self.processing_thread_drum_gen.join()
+        self.processing_thread_listen.join()
+        self.processing_thread.join()
+        print("[Predictor] realtime loop stoped")
 
 
 def replace_drum(DB_path, D_path, output_path, vels):
@@ -288,7 +295,8 @@ if __name__ == '__main__':
     """
 
     predictor = Predictor()
-    predictor.real_time_loop()
+    predictor.real_time_setup()
+        
 
     # print("res_path",res_path)
 

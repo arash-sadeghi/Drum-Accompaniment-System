@@ -10,15 +10,15 @@
 </head>
 <body>
 
-  <div class="container">
-    <h1 id="title">Drum Generator for Your Bass Track</h1>
+    <div class="container">
+      <h1 id="title">Drum Generator for Your Bass Track</h1>
 
-    <div class="tabs">
-      <button class="tab-button active" onclick="openTab('offline-tab', this)">Offline Drum Accompaniment</button>
-      <button class="tab-button" onclick="openTab('realtime-tab', this)">Real-time Drum Accompaniment</button>
+      <div class="tabs">
+        <button class="tab-button {% if active_tab == 'offline' %}active{% endif %}" onclick="openTab('offline-tab', this)">Offline Drum Accompaniment</button>
+        <button class="tab-button {% if active_tab == 'realtime' %}active{% endif %}" onclick="openTab('realtime-tab', this)">Real-time Drum Accompaniment</button>
     </div>
 
-    <div id="offline-tab" class="tab-content active">
+    <div id="offline-tab" class="tab-content {% if active_tab == 'offline' %}active{% endif %}">
       <!-- <p class="subtitle">Upload a bass track MIDI file and get a drum track.</p>
       <p class="subtitle"> Make sure your bass track is in tempo 100 and rhythm 4/4.</p>
       <p class="subtitle"> If you get a empty midi file back, it means your input track</p>
@@ -38,14 +38,14 @@
           <label for="inform-backend">Assign Velocity to Drum Track</label>
         </div>
 
-        <input type="submit" name="submit" value="Submit">
+        <input class="button" type="submit" name="submit" value="Submit">
       </form>
     </div>
 
-    <div id="realtime-tab" class="tab-content">
+    <div id="realtime-tab" class="tab-content  {% if active_tab == 'realtime' %}active{% endif %}">
       <h1>Real-time</h1>
 
-      <form method="post" action="/realtime" enctype="multipart/form-data">
+      <form id="realtime-form">
         <div>
           <label for="midiin">Choose MIDI in port</label>
           <!-- <input type="text" name="midiin" id="midiin" required> -->
@@ -66,8 +66,17 @@
 
         <p></p>
         
-        <input type="submit" name="submit" value="Start">
+        <!-- <input type="submit" name="submit" value="Start"> -->
+
+        <!-- <input type="submit" id="start-btn" name="submit" value="Start" onclick="toggleButtons()">
+        <input type="submit" id="stop-btn" name="submit" value="Stop" onclick="toggleButtons()" disabled> -->
+        
+
+        <button class="button" type="button" id="start-btn" onclick="startRealTime()">Start</button>
+        <button class="button" type="button" id="stop-btn" onclick="stopRealTime()" disabled>Stop</button>
+ 
       </form>
+      <p id="message" class="message" style="display: none;"></p>
 
     </div>
 

@@ -125,7 +125,7 @@ body, h1, p, form {
     background-color: #45a049;
   } */
   
-  input[type="submit"] {
+.button {
     background-color: #008CBA;
     color: white;
     padding: 10px 20px;
@@ -213,4 +213,11 @@ body, h1, p, form {
   border-radius: 10px;
   padding: 30px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Style for disabled buttons */
+.button:disabled {
+  background-color: #dddddd; /* Grey background color */
+  color: #999999; /* Light grey text color */
+  cursor: not-allowed; /* Show disabled cursor */
 }
