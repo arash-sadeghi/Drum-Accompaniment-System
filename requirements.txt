@@ -1,4 +1,6 @@
+altgraph==0.17.4
 blinker==1.7.0
+cachelib==0.13.0
 certifi==2024.2.2
 charset-normalizer==3.3.2
 click==8.1.7
@@ -6,6 +8,8 @@ contourpy==1.2.0
 cycler==0.12.1
 filelock==3.13.1
 Flask==3.0.2
+Flask-Session==0.8.0
+flaskwebgui==1.1.2
 fonttools==4.49.0
 fsspec==2024.2.0
 huggingface-hub==0.21.3
@@ -13,18 +17,23 @@ idna==3.6
 itsdangerous==2.1.2
 Jinja2==3.1.3
 kiwisolver==1.4.5
+macholib==1.16.3
 MarkupSafe==2.1.5
 matplotlib==3.8.3
 miditok==3.0.1
 mido==1.3.2
 mpmath==1.3.0
+msgspec==0.18.6
 networkx==3.2.1
 numpy==1.26.4
 packaging==23.2
 pillow==10.2.0
 platformdirs==4.2.0
 pretty-midi==0.2.10
+psutil==5.9.8
 pygame==2.5.2
+pyinstaller @ https://github.com/pyinstaller/pyinstaller/archive/develop.zip#sha256=5e552583bc25bc55392be317fa44c7223450599a7259b426b75472dc038a0b23
+pyinstaller-hooks-contrib==2024.7
 pyparsing==3.1.1
 pypianoroll==1.0.4
 pySmartDL==1.3.4
