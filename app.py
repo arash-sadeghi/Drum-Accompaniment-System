@@ -8,21 +8,33 @@ there's an exception, even providing an interactive debugger that runs in the br
 Flask then builds upon this foundation to provide a complete web framework.
 """
 
-from flask import Flask, render_template, request, redirect, flash, send_file, make_response
+from flask import Flask, render_template, request, redirect, flash, jsonify, make_response, url_for,session
 from werkzeug.utils import secure_filename
-from models.Predict import Predictor
+from models.Predict import Predictor , get_available_ports
 import os
-from models.Predict import Predictor
-from models.Velocity_assigner.assign_velocity import VelocityAssigner
+# from models.Velocity_assigner.assign_velocity import VelocityAssigner
+
+import flaskwebgui
+
+from flask_session import Session
 
 predictor = Predictor()
 # va = VelocityAssigner()
 
 #Save images to the 'static' folder as Flask serves images from this directory
-UPLOAD_FOLDER = 'static/'
+UPLOAD_FOLDER = 'models/results/'
+ROOT = os.path.dirname(os.path.abspath(__file__)) #!root path. this is for deployment
 
 #Create an app object using the Flask class. 
 app = Flask(__name__, static_folder="static")
+# gui =  flaskwebgui.FlaskUI(app)
+
+# Configure the secret key for encryption (required by Flask-Session)
+app.config['SECRET_KEY'] = 'your_secret_key_here'
+
+# Configure Flask-Session to use filesystem (you can use other backends as per your needs)
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
 
 #Add reference fingerprint. 
 #Cookies travel with a signature that they claim to be legit. 
@@ -42,9 +54,67 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 #Note that render_template means it looks for the file in the templates folder. 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    session['tab'] = 'offline'  # Initialize or update session variable
+    return render_template('index.html' ,  midi_ports=get_available_ports()['inports'],active_tab=session.get('tab'))
 
-@app.route('/', methods=['POST'])
+# @app.route('/realtime', methods=['GET', 'POST'])
+# def realtime():
+#     print(">"*10,request.method )
+#     if request.method == 'POST':
+#         action = request.form['submit']  # Get the value of the clicked button
+
+#         if action == 'Start':
+#             midiin = request.form.get('midiin')
+#             midiout = request.form.get('midiout')
+#             print(f"[+][app.py] real time button pressed. Listening to {midiin} and out to {midiout}")
+#             predictor.set_midi_io(midiin,midiout)
+#             predictor.real_time_setup()
+#             # return redirect('/')
+#             print(url_for('realtime'))
+#             session['tab'] = 'realtime'  # Store the active tab in session
+#             return redirect(url_for('realtime'))  # Redirect to the same page after processing
+
+#         elif action == 'Stop':
+#             predictor.stop_real_time()
+#             session['tab'] = 'realtime'  # Store the active tab in session
+#             return redirect(url_for('realtime'))  # Redirect to the same page after processing
+
+#     if request.method == 'GET':
+#         session['tab'] = 'offline' if 'tab' not in session else session['tab']  # Restore active tab from session
+#         print("session",session)
+#         return render_template('index.html' ,  midi_ports=get_available_ports()['inports'], active_tab=session.get('tab'))
+
+@app.route('/realtime', methods=['POST'])
+def realtime():
+    print(">"*10,request.method )
+    if request.method == 'POST':
+        data = request.json
+        action = data.get('action')
+
+        if action == 'Start':
+            midiin = data.get('midiin')
+            midiout = data.get('midiout')
+            # midiin = request.form.get('midiin')
+            # midiout = request.form.get('midiout')
+            print(f"[+][app.py] real time button pressed. Listening to {midiin} and out to {midiout}")
+            predictor.set_midi_io(midiin,midiout)
+            predictor.real_time_setup()
+            # return redirect('/')
+            print(url_for('realtime'))
+            session['tab'] = 'realtime'  # Store the active tab in session
+            # return jsonify({'status': 'success', 'active_tab': 'realtime'})
+
+        elif action == 'Stop':
+            predictor.stop_real_time()
+            session['tab'] = 'realtime'  # Store the active tab in session
+            # return jsonify({'status': 'success', 'active_tab': 'realtime'})
+            print(f"[+][app.py] real time stopped")
+
+
+
+        return jsonify(success=True)
+
+@app.route('/offline', methods=['POST'])
 def submit_file():
     global res_path
     if request.method == 'POST':
@@ -67,9 +137,9 @@ def submit_file():
         
         if file:
             filename = secure_filename(file.filename)  # Use this werkzeug method to secure filename.
-            save_path = os.path.join(app.config['UPLOAD_FOLDER'],'user_file.midi')
+            save_path = os.path.join(ROOT,app.config['UPLOAD_FOLDER'],'user_file.midi')
             file.save(save_path)
-            res_path = predictor.generate_drum(save_path)
+            _ , res_path , _ = predictor.generate_drum(bass_url = save_path)
 
             checkbox_value = request.form.get('assing-velocity', None)
 
@@ -104,7 +174,11 @@ def download_file():
 
 if __name__ == "__main__":
     print("[+] RUNNING")
-    port = int(os.environ.get('PORT', 3009)) #Define port so we can map container port to localhost
-    app.run(host='0.0.0.0', port=port)  #Define 0.0.0.0 for Docker
-    # app.run()
+
+    # port = int(os.environ.get('PORT', 3009)) #Define port so we can map container port to localhost
+    # app.run(host='0.0.0.0', port=port)  #Define 0.0.0.0 for Docker
+
+    app.run(debug=True)
+    # gui.run(host='0.0.0.0')
+    # flaskwebgui.FlaskUI(app=app, server="flask", width=800, height=600).run()
 

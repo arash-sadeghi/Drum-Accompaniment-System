@@ -1,5 +1,10 @@
-from models.Velocity_assigner.bert_midi import BertMidi
-from  models.Velocity_assigner.midi_tokenizer import MidiBertTokenizer
+# from models.Velocity_assigner.bert_midi import BertMidi
+# from  models.Velocity_assigner.midi_tokenizer import MidiBertTokenizer
+
+from Velocity_assigner.bert_midi import BertMidi
+from Velocity_assigner.midi_tokenizer import MidiBertTokenizer
+
+
 import torch
 print("[+] in assign_velocity")
 class VelocityAssigner:
@@ -22,8 +27,10 @@ class VelocityAssigner:
             input_ids_torch ,
             torch.tensor(self.midi_tokenizer.inp_tgt['attention_mask']))
         
-        music = self.bert_out2midi(bert_velocities ,self.midi_tokenizer.inp_tgt['input_tokens'] ,input_ids_torch )
+        music , velocities = self.bert_out2midi(bert_velocities ,self.midi_tokenizer.inp_tgt['input_tokens'] ,input_ids_torch )
         music.dump_midi(midi_file_path)
+        print("[Velocity assigner] saved result to",midi_file_path)
+        return midi_file_path , velocities
   
     def bert_out2midi(self,bert_out,input_tokens ,input_ids_torch):
         bert_out_masked = (input_ids_torch == 103)*bert_out
@@ -34,12 +41,14 @@ class VelocityAssigner:
 
 
         vel_indx = 0
+        vel_numbers = []
         for counter , token in enumerate(self.midi_tokenizer.midi_tokens.tokens):
             if 'Velocity' in token:
                 self.midi_tokenizer.midi_tokens.tokens[counter] = 'Velocity_'+str(int(velocities[vel_indx]))
+                vel_numbers.append(int(velocities[vel_indx]))
                 vel_indx += 1
                 
 
         music = self.midi_tokenizer.tokenizer_input(self.midi_tokenizer.midi_tokens.tokens)
-        return music
+        return music , vel_numbers
 

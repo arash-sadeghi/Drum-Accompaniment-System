@@ -1,9 +1,10 @@
 import torch.nn as nn
 import torch.nn.functional as F
-import torch
-# from models.CONST_VARS import CONST
-from CONST_VARS import CONST
 
+# from CONST_VARS import CONST
+from models.CONST_VARS import CONST
+
+import torch
 class GeneraterBlock(nn.Module):
     def __init__(self, in_dim, out_dim, kernel, stride ,output_padding = 0):
         super().__init__()
@@ -29,9 +30,14 @@ class ConditionerBlock(nn.Module):
         return F.leaky_relu(x)
 
 class Generator(nn.Module):
+    latent_depth_chanel = 3*CONST.latent_dim
     def __init__(self):
         super().__init__() #! layer norms are adjusted as such to generate an ouput of lenght 64x72
 
+        embedding_size = CONST.latent_dim
+        num_embeddings = len(CONST.genre_code)  
+        self.embedder = nn.Embedding(num_embeddings, embedding_size)
+        
         self.conv0 = ConditionerBlock(1, 16, (1, 1, 12), (1, 1, 12))
         self.conv1 = ConditionerBlock(16, 32, (1, 4, 1), (1, 4, 1))
         self.conv2 = ConditionerBlock(32, 64, (1, 1, 3), (1, 1, 1))
@@ -39,8 +45,7 @@ class Generator(nn.Module):
         self.conv4 = ConditionerBlock(128, 256, (1, 4, 1), (1, 4, 1))
         self.conv5 = ConditionerBlock(256 , CONST.latent_dim , (4, 1, 1), (4, 1, 1))
 
-
-        self.transconv0 = GeneraterBlock(CONST.latent_dim*2, 256, (4, 1, 1), (4, 1, 1))
+        self.transconv0 = GeneraterBlock(Generator.latent_depth_chanel, 256, (4, 1, 1), (4, 1, 1))
         self.transconv1 = GeneraterBlock(256, 128, (1, 4, 1), (1, 4, 1))
         self.transconv2 = GeneraterBlock(128, 64, (1, 1, 4), (1, 1, 4))
         self.transconv3 = GeneraterBlock(64, 32, (1, 1, 3), (1, 1, 1))
@@ -48,7 +53,7 @@ class Generator(nn.Module):
         self.transconv5 = GeneraterBlock(16, 1, (1, 1, 12), (1, 1, 12))
 
 
-    def forward(self, x , condition): #! torch.Size([1, 128])
+    def forward(self, x , condition , genre): #! torch.Size([1, 128])
 
         condition = condition.view(-1,1, CONST.n_measures , CONST.measure_resolution, CONST.n_pitches) 
         # x = x.view(CONST.BATCH_SIZE ,1, CONST.n_measures , CONST.measure_resolution, CONST.n_pitches) 
@@ -60,10 +65,11 @@ class Generator(nn.Module):
         condition = self.conv5(condition)
         condition = condition.view(-1, CONST.latent_dim)        
         
-        x = torch.cat((x, condition),axis=1)
+        genre = self.embedder(genre)
+        x = torch.cat((x, condition,genre),axis=1)
 
         # layer = 0
-        x = x.view(-1, CONST.latent_dim*2, 1, 1, 1) #! torch.Size([1, 128, 1, 1])
+        x = x.view(-1, Generator.latent_depth_chanel, 1, 1, 1) #! torch.Size([1, 128, 1, 1])
         # print(f"layer {layer} size {x.shape}");layer+=1        
 
         x = self.transconv0(x) #! torch.Size([1, 128, 4, 4]) #! torch.Size([1, 128, 3, 3])

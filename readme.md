@@ -1,8 +1,30 @@
-## TODO:
-- play with buffer size
-- code quits after a time window ends. you need to recall again and make windows overlap. each added note should carry previous notes with itself (to a certain time)
-- drummer will always generate drum for previous track. How to make a catch up dynamic.
- 
+# Deplyment probelms
+## webgui
+- bass_piano_roll = torch.tensor(bass_piano_roll) blocks webgui. it doesn't allow for app to continue
+    - for now we relly on flask and browser without webgui
+## pyinstaller
+- [x] pyinstaller couldn't find files and paths but it was ok with other python modules. Solved it by using onedir and getting absolute path by relying on _interanl files
+
+# pyinstaller commands
+pyinstaller --name DAM --onefile --paths ./.env/lib/python3.11/site-packages --add-data 'static:static' --add-data 'templates:templates' --add-data 'models/generator_weights.pth:models' app.py
+
+pyinstaller --name DAM --onedir --paths ./.env/lib/python3.11/site-packages --add-data 'static:static' --add-data 'templates:templates' --add-data 'models:models' app.py
+## important: 
+- velocity assigner changes drum midi pitches
+## Todo
+- [ ] make generator run on gpu if it finds it avaible
+- [ ] decide if docker will be used
+    - [ ] transport midi ports to docker
+- [ ] remember relative library imports
+- [ ] try using velocity assigner in real-time application
+## Notes
+- generator function works both with files or given bass and tempo. Genre is kept fixed during the whole session
+- for logic pro drum note mapping must be checked. Some notes does not exist in a typical drumkit in logi pro
+- from listening to publishing processing time takes approximately 0.5s for window of 10s and 0.7s for window of 20s
+- The main time difference error was happening from function pypianoroll.from_pretty_midi because without time signiture, it didn't know where is the begginging of midi
+- When we add zero padding to music to make it of size 64, the zero padding will affect the last bit of music and always music at the padding part sounds like it is about to end.
+    so zero padding affects generated music. will try repeating last session. the time window will have different number of notes inside it each time becauseit depends how many note
+    were played in that time frame. Still, measure length should be a function of tempo and rythm.
 
 ## How to run locally
 - these instructions are for Macos operating system.
@@ -39,7 +61,6 @@ you should be able to see the app running.
 -  docker push drummercompanion.azurecr.io/drummercompanion
 - update docker image on azure: [link](https://stackoverflow.com/questions/57241655/switch-docker-image-in-azure-appservice)
 ### progress
-- 'Transformer assigns velocity successfully. Now integration part should be done. models weights too big for adding to git'
 - modifying CGAN to only output drum midi. The whole app will work as such. no more returning bass
 - CGAN might be clipping the end of songs. must be checked
 - __pycahce__ was geeting copied to docker. that was consuming space and throwing low disk space warning

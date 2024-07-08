@@ -1,0 +1,223 @@
+/* Reset CSS */
+body, h1, p, form {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Global styles */
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* background: linear-gradient(to bottom right, #9dcce9, #f09898); */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+
+    background-image: url("background.png"); /* Path to your background image */
+    background-size: cover;
+    background-position: center;
+
+  }
+  
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    max-width: 700px; 
+  }
+    
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    color: #3d3d3d;
+    text-align: justify; /* Justify the text alignment */
+    width: 100%; /* Make subtitles take the full width of the container */
+    max-width: 700px; /* Adjust the max-width to control the subtitle width */
+    margin: 0 auto; /* Center the subtitles horizontally */
+}
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    width: 100%; /* Make form take the full width of the container */
+  }
+  
+
+  select {
+    padding: 5px;
+    border: 1px solid #cccc;
+    border-radius: 40px;
+    align-items: center;
+    box-sizing: border-box; /* Include padding within the width */
+    font-size: 20px; /* Set the font size for the input text */
+    width: 200px; /* Adjust width as needed */
+    justify-content: center; /* Center elements horizontally */
+
+  }
+
+
+/* Style the custom button */
+.file-input-container label {
+  display: inline-block;
+  cursor: pointer;
+  background-color: #4CAF50; /* Button background color */
+  color: white; /* Button text color */
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  margin-left: 10px;
+  margin-top: 20px;
+}
+
+.file-input-container label:hover {
+  background-color: #45a049; /* Hover background color */
+}
+
+/* Hide the default file input */
+.inputfile {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+  form label, form select {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  /* label { */
+    /* background-color: #4CAF50; */
+    /* color: white; */
+    /* padding: 10px 20px; */
+    /* font-size: 1.2rem; */
+    /* border-radius: 5px; */
+    /* cursor: pointer; */
+    /* transition: background-color 0.3s ease; */
+  /* }   */
+
+  label {
+    /* background-color: #4CAF50; */
+    color: #3d3d3d;;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    /* cursor: pointer; */
+    /* transition: background-color 0.3s ease; */
+  }
+/*   
+  label:hover {
+    background-color: #45a049;
+  } */
+  
+.button {
+    background-color: #008CBA;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 40px;
+    /* justify-content: center; */
+    margin: 0 auto;
+    width: 30%;
+  }
+
+  .checkbox-container {
+    /* margin-top: 40px; */
+  }
+
+  .tabs {
+    display: flex;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    justify-content: center; /* Center elements horizontally */
+    position: fixed;
+    top: 120px; /* Position at the top of the viewport */
+    left: 50%; /* Position at the center horizontally */
+    transform: translateX(-50%); /* Offset to center horizontally */
+    width: 100%; /* Make the element span the entire width */
+    /* Additional styles for the tabs (e.g., background-color, padding) */
+  }
+
+.tab-button {
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.3s;
+    margin-right: 5px;
+
+    background-color: #919ca0;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+.tab-button.active {
+    background-color: #008CBA;
+}
+
+.tab-content {
+    display: none;
+    padding: 20px;
+    border: 1px solid #ccc;
+    margin-top: 10px;
+
+    /* background-color: #fff; */
+    background-color: rgba(255, 255, 255, 0.6); /* Semi-transparent white background */
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    width: 700px;
+    position: fixed;
+    top: 200px; /* Position at the top of the viewport */
+    left: 50%; /* Position at the center horizontally */
+    transform: translateX(-50%); /* Offset to center horizontally */
+  
+}
+
+.tab-content.active {
+    display: block;
+}
+
+#title{
+  justify-content: center; /* Center elements horizontally */
+  position: fixed;
+  top: 0; /* Position at the top of the viewport */
+  left: 50%; /* Position at the center horizontally */
+  transform: translateX(-50%); /* Offset to center horizontally */
+  width: 60%; /* Make the element span the entire width */
+
+
+  background-color: rgba(255, 255, 255, 0.6); /* Semi-transparent white background */
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Style for disabled buttons */
+.button:disabled {
+  background-color: #dddddd; /* Grey background color */
+  color: #999999; /* Light grey text color */
+  cursor: not-allowed; /* Show disabled cursor */
+}

@@ -1,74 +1,47 @@
-import mido
 import pretty_midi
-import numpy as np
 import pypianoroll
-# from models.CONST_VARS import CONST
-from CONST_VARS import CONST
-import mido
-import time
-import pretty_midi
-import rtmidi
-import pypianoroll
-# from mido import MidiFile, MidiPort
-midi_filename = 'received_messages_pm.mid'
-MIDI_INPUT_PORT = 'IAC Driver Bus 1'
-TIME_WINDOW = 17 #! 10 is not enough
-def listen4midi():
-    '''
-    listen to midi in port MIDI_INPUT_PORT for TIME_WINDOW seconds and then converts it to piano roll
-    expected bass track
-    '''
 
-    pm_data = pretty_midi.PrettyMIDI()  # Create empty PrettyMIDI object
-    bass = pretty_midi.Instrument(program=33) #! 33 is bass program code. got from CGAN repo
+from models.CONST_VARS import CONST
+# from CONST_VARS import CONST
 
-    midi_in = rtmidi.MidiIn()
-    available_ports = midi_in.get_ports()
-    if MIDI_INPUT_PORT not in available_ports:
-        print(f"Virtual MIDI Port not found. Available ports: {available_ports}")
-        return
-    midi_in.open_port(available_ports.index(MIDI_INPUT_PORT))
+import os
+import matplotlib.pyplot as plt
 
+def plot_multitrack(multitrack,path):
+    time_trim = 20*CONST.measure_resolution #* draw only first 20 measures of song
+    for c,v in enumerate(multitrack.tracks):
+        multitrack.tracks[c].pianoroll = multitrack.tracks[c].pianoroll[:time_trim,:]
+    axs = multitrack.plot()
+    plt.gcf().set_size_inches((16, 8))
+    #! this for loop only puts horizontal line in plot
+    for ax in axs:
+        for x in range(CONST.measure_resolution, time_trim, CONST.measure_resolution): #! data.shape[0]*data.shape[2]: samples * notes in each samples: whole notes
+            if x % (CONST.measure_resolution * 4) == 0: #! marks 1 measure
+                ax.axvline(x - 0.5, color='k')
+            else:
+                ax.axvline(x - 0.5, color='k', linestyle='-', linewidth=1) #! marks one beat of 4/4 (might include few notes)
+    # plt.tight_layout()
+    plt.savefig(path)
 
-    with mido.open_input() as port:
-        start_time = time.time()
-        end_time = start_time + TIME_WINDOW  # Listen for 10 seconds
-        ons = {} #* this dictionary enables us to capture cords
-        for message in port:
-            print("message",message)
-            if time.time() >= end_time:
-                break
-            # track.append(message)
-            elif message.type == 'note_on':
-                note_beg = time.time() - start_time
-                ons[str(message.note)] = note_beg
+def keep_bass_only(midi):
+    for instr in midi.instruments:
+        if "Bass" in instr.name:
+            midi.instruments = [instr]
+            return midi
 
-            elif message.type == 'note_off':
-                if str(message.note) in ons.keys():
-                    note_end = time.time() - start_time
-                    note = pretty_midi.Note(
-                        velocity=message.velocity, #! this is not accurate becuse note on and note off velocities are different
-                        pitch=message.note,
-                        start=ons[str(message.note)],
-                        end=note_end
-                        )
-
-                    bass.notes.append(note)  # Append note to first instrument
-
-    pm_data.instruments.append(bass)
-    # pm_data.write(midi_filename)
-    # print(f"Received messages saved to '{midi_filename}'.")
-
-    return midi_to_piano_roll(midi_data = pm_data)
 
 def midi_to_piano_roll(midi_file_path = '',midi_data=None):
 
     if midi_data is None: 
         midi_data = pretty_midi.PrettyMIDI(midi_file_path)
-    multi_track = pypianoroll.from_pretty_midi(midi_data)
+        midi_data = keep_bass_only(midi_data)
+    else:
+        midi_data.time_signature_changes.append(pretty_midi.TimeSignature(numerator=4,denominator=4,time=0))
+    multi_track = pypianoroll.from_pretty_midi(midi_data,algorithm='strict')
     multi_track.set_resolution(CONST.beat_resolution) 
-    # multi_track.binarize()
+    multi_track.binarize()
+    # plot_multitrack(multi_track.copy(),output+".png")
     piano_roll = multi_track.stack()
-
+    # multi_track.write(output+"midi")
     return piano_roll.squeeze() , multi_track.tempo
 
