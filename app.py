@@ -1,20 +1,10 @@
-# https://youtu.be/ZS1ivzlymPQ
-"""
-
-Werkzeug provides a bunch of utilities for developing WSGI-compliant applications. 
-These utilities do things like parsing headers, sending and receiving cookies, 
-providing access to form data, generating redirects, generating error pages when 
-there's an exception, even providing an interactive debugger that runs in the browser. 
-Flask then builds upon this foundation to provide a complete web framework.
-"""
-
 from flask import Flask, render_template, request, redirect, flash, jsonify, make_response, url_for,session
 from werkzeug.utils import secure_filename
 from models.Predict import Predictor , get_available_ports
 import os
 # from models.Velocity_assigner.assign_velocity import VelocityAssigner
 
-import flaskwebgui
+# import flaskwebgui
 
 from flask_session import Session
 
@@ -178,7 +168,9 @@ if __name__ == "__main__":
     # port = int(os.environ.get('PORT', 3009)) #Define port so we can map container port to localhost
     # app.run(host='0.0.0.0', port=port)  #Define 0.0.0.0 for Docker
 
-    app.run(debug=True)
+    # app.run(debug=True)
+    app.run()
+
     # gui.run(host='0.0.0.0')
     # flaskwebgui.FlaskUI(app=app, server="flask", width=800, height=600).run()
 
