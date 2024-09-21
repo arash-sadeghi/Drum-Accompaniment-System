@@ -6,7 +6,7 @@ from models.CONST_VARS import CONST
 # from midi2pianoroll import midi_to_piano_roll , plot_multitrack
 # from CONST_VARS import CONST
 
-import matplotlib.pyplot as plt
+from models.utils import generator_weight_provider
 
 import torch
 import numpy as np 
@@ -15,7 +15,6 @@ from pypianoroll import Multitrack, BinaryTrack
 import pretty_midi
 import mido
 import mido.backends.rtmidi
-from time import time , ctime, sleep
 
 import threading
 import queue
@@ -26,30 +25,19 @@ import os
 
 from mido import get_input_names, get_output_names
 
-
-TIME_WINDOW = 30
-
-
 class Predictor:
-    ROOT = os.path.dirname(os.path.abspath(__file__)) #!root path. this is for deployment
-    # WEIGHT_PATH = 'training_output_path_rootgenerator_20000.pth'
-    # WEIGHT_PATH = 'models\generator_800.pth'
-    # WEIGHT_PATH = os.path.join('models','generator_19900.pth')
-    WEIGHT_PATH = os.path.join(ROOT,'generator_weights.pth')
-    # WEIGHT_PATH = os.path.join('models','generator_weights.pth')
-    # WEIGHT_PATH = os.path.join('models','training_output_path_rootgenerator_20000.pth')
-    GENRE = 'Pop_Rock' #'Latin' #
-    EXECUTION_TIME = ctime(time()).replace(':','_').replace(' ','_')
-    RES_PATH = os.path.join(ROOT,'results')
-    SAVE_PATH = os.path.join(RES_PATH,f'generated_drum_{GENRE}_{EXECUTION_TIME}')
-    
+    WEIGHT_PATH = CONST.generator_file_path
+    GENRE = CONST.GENRE
+    RES_PATH = CONST.result_path
+    SAVE_PATH = CONST.SAVE_PATH
+
     def __init__(self) -> None:
-        print("[+] Predict ROOT",Predictor.ROOT)
-        self.generator = Generator()    
+        self.generator = Generator()   
+        generator_weight_provider() #! makes sure generator weghts are downloaded and ready to use
         self.generator.load_state_dict(torch.load(Predictor.WEIGHT_PATH , map_location=torch.device('cpu'))) #TODO specific to cpu machine only
         self.generator.eval() #! this solve error thrown by data length
-        self._MIDI_OUT_PORT = 'IAC Driver Bus 2'
-        self._MIDI_INPUT_PORT = 'IAC Driver Bus 1'
+        self._MIDI_OUT_PORT = CONST.MIDI_INPUT_PORT
+        self._MIDI_INPUT_PORT = CONST.MIDI_INPUT_PORT
 
     def set_midi_io(self,midiin,midiout):
         # self._MIDI_OUT_PORT = 'IAC Driver Bus 2'
@@ -158,7 +146,6 @@ class Predictor:
             message_counter = 0
             print(f"[+][PUBLISHER] from listening to publishing took {time()-self.process_begin_time}")
             #TODO bypassing while time check to allow generation of drum more than time window for jamming test purpose
-            # while passed_time <= TIME_WINDOW:
             while True:
                 passed_time = time() - start_time
                 if mido_messages_sorted[message_counter].time - passed_time <=0.001:
@@ -190,11 +177,10 @@ class Predictor:
             pm_data = pretty_midi.PrettyMIDI()  # Create empty PrettyMIDI object
             bass = pretty_midi.Instrument(program=33) #! 33 is bass program code. got from CGAN repo
             start_time = time()
-            end_time = start_time + TIME_WINDOW  # Listen for 10 seconds
+            end_time = start_time + CONST.TIME_WINDOW  # Listen for 10 seconds
             ons = {} #* this dictionary enables us to capture cords
 
             while time() < end_time:
-                # print(f'[+] passed time percentage {100-(end_time-time())/TIME_WINDOW*100}')
                 for message in self.midi_port_in.iter_pending():
                     if time()>= end_time: #! without this the message loop will avoid time loop from evaluating time duration
                         break #! from for message in self.midi_port_in.iter_pending():

@@ -16,3 +16,4 @@ data/
 dist/
 models/results/
 flask_session/
+models/generator_weights.pth

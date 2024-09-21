@@ -1,4 +1,10 @@
 import numpy as np
+import os
+from time import time , ctime, sleep
+
+def get_time():
+    return ctime(time()).replace(':','_').replace(' ','_')
+
 class CONST:
     beat_resolution = 4  # temporal resolution of a beat (in timestep)
     measure_resolution = 4 * beat_resolution
@@ -29,3 +35,18 @@ class CONST:
         'Jazz'  : 11 ,
         'Latin' : 12 ,
     }
+
+    # s3 for weghts
+    bucket_name = 'das.backend'
+    s3_file_key = 'generator_weights.pth'
+
+    # ROOT = os.path.dirname(os.path.abspath(__file__)) #!root path. this is for deployment
+    # os.path.join(ROOT,
+    generator_file_path = 'models/generator_weights.pth'
+    result_path =  "models/results"
+
+    TIME_WINDOW = 30
+    MIDI_OUT_PORT = 'IAC Driver Bus 2'
+    MIDI_INPUT_PORT = 'IAC Driver Bus 1'
+    GENRE = 'Pop_Rock'
+    SAVE_PATH = os.path.join(result_path,f'generated_drum_{GENRE}_{get_time()}')

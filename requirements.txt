@@ -1,5 +1,7 @@
 altgraph==0.17.4
 blinker==1.7.0
+boto3==1.35.24
+botocore==1.35.24
 cachelib==0.13.0
 certifi==2024.2.2
 charset-normalizer==3.3.2
@@ -16,6 +18,7 @@ huggingface-hub==0.21.3
 idna==3.6
 itsdangerous==2.1.2
 Jinja2==3.1.3
+jmespath==1.0.1
 kiwisolver==1.4.5
 macholib==1.16.3
 MarkupSafe==2.1.5
@@ -42,13 +45,14 @@ python-rtmidi==1.5.8
 PyYAML==6.0.1
 regex==2023.12.25
 requests==2.31.0
+s3transfer==0.10.2
 safetensors==0.4.2
 scipy==1.12.0
 six==1.16.0
 sympy==1.12
 symusic==0.4.2
 tokenizers==0.15.2
-torch==2.1.0
+# torch==2.1.0
 tqdm==4.66.2
 transformers==4.38.2
 typing_extensions==4.9.0

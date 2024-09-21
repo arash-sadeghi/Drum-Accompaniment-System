@@ -47,32 +47,6 @@ def index():
     session['tab'] = 'offline'  # Initialize or update session variable
     return render_template('index.html' ,  midi_ports=get_available_ports()['inports'],active_tab=session.get('tab'))
 
-# @app.route('/realtime', methods=['GET', 'POST'])
-# def realtime():
-#     print(">"*10,request.method )
-#     if request.method == 'POST':
-#         action = request.form['submit']  # Get the value of the clicked button
-
-#         if action == 'Start':
-#             midiin = request.form.get('midiin')
-#             midiout = request.form.get('midiout')
-#             print(f"[+][app.py] real time button pressed. Listening to {midiin} and out to {midiout}")
-#             predictor.set_midi_io(midiin,midiout)
-#             predictor.real_time_setup()
-#             # return redirect('/')
-#             print(url_for('realtime'))
-#             session['tab'] = 'realtime'  # Store the active tab in session
-#             return redirect(url_for('realtime'))  # Redirect to the same page after processing
-
-#         elif action == 'Stop':
-#             predictor.stop_real_time()
-#             session['tab'] = 'realtime'  # Store the active tab in session
-#             return redirect(url_for('realtime'))  # Redirect to the same page after processing
-
-#     if request.method == 'GET':
-#         session['tab'] = 'offline' if 'tab' not in session else session['tab']  # Restore active tab from session
-#         print("session",session)
-#         return render_template('index.html' ,  midi_ports=get_available_ports()['inports'], active_tab=session.get('tab'))
 
 @app.route('/realtime', methods=['POST'])
 def realtime():
