@@ -35,8 +35,8 @@ platformdirs==4.2.0
 pretty-midi==0.2.10
 psutil==5.9.8
 pygame==2.5.2
-pyinstaller @ https://github.com/pyinstaller/pyinstaller/archive/develop.zip#sha256=5e552583bc25bc55392be317fa44c7223450599a7259b426b75472dc038a0b23
-pyinstaller-hooks-contrib==2024.7
+# pyinstaller @ https://github.com/pyinstaller/pyinstaller/archive/develop.zip#sha256=5e552583bc25bc55392be317fa44c7223450599a7259b426b75472dc038a0b23
+# pyinstaller-hooks-contrib==2024.7
 pyparsing==3.1.1
 pypianoroll==1.0.4
 pySmartDL==1.3.4
