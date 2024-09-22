@@ -1,7 +1,7 @@
 FROM python:3.11.5
 RUN apt update
 RUN git clone https://github.com/arash-sadeghi/Music-CGAN-app.git /app
-
+RUN git switch aws
 #!DEBUG to save time
 COPY models/Predict.py /app/models/
 COPY app.py /app/

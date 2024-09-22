@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, flash, jsonify, make_response, url_for,session
 from werkzeug.utils import secure_filename
-from models.Predict import Predictor , get_available_ports
+from models.Predict import Predictor
 import os
 # from models.Velocity_assigner.assign_velocity import VelocityAssigner
 
@@ -47,7 +47,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 @app.route('/')
 def index():
     session['tab'] = 'offline'  # Initialize or update session variable
-    return render_template('index.html' ,  midi_ports=get_available_ports()['inports'],active_tab=session.get('tab'))
+    return render_template('index.html' ,active_tab=session.get('tab'))
 
 
 @app.route('/realtime', methods=['POST'])
