@@ -14,7 +14,6 @@ from pypianoroll import Multitrack, BinaryTrack
 
 import pretty_midi
 import mido
-import mido.backends.rtmidi
 
 import threading
 import queue

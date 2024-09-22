@@ -139,11 +139,11 @@ def download_file():
 if __name__ == "__main__":
     print("[+] RUNNING")
 
-    port = int(os.environ.get('PORT', 3009)) #Define port so we can map container port to localhost
-    app.run(host='0.0.0.0', port=port)  #Define 0.0.0.0 for Docker
+    # port = int(os.environ.get('PORT', 3009)) #Define port so we can map container port to localhost
+    # app.run(host='0.0.0.0', port=port)  #Define 0.0.0.0 for Docker
 
     # app.run(debug=True)
-    # app.run()
+    app.run()
 
     # gui.run(host='0.0.0.0')
     # flaskwebgui.FlaskUI(app=app, server="flask", width=800, height=600).run()
