@@ -41,7 +41,7 @@ pyparsing==3.1.1
 pypianoroll==1.0.4
 pySmartDL==1.3.4
 python-dateutil==2.8.2
-python-rtmidi==1.5.8
+python-rtmidi==1.5.8 #! this will throw a missing library error
 PyYAML==6.0.1
 regex==2023.12.25
 requests==2.31.0

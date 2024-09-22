@@ -14,11 +14,13 @@ from pypianoroll import Multitrack, BinaryTrack
 
 import pretty_midi
 import mido
+import mido.backends.rtmidi
 
 import threading
 import queue
 
 import os
+from time import time
 
 # from Velocity_assigner.assign_velocity import VelocityAssigner
 
