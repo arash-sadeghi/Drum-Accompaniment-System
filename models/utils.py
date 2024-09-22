@@ -3,6 +3,18 @@ import boto3
 from botocore.exceptions import NoCredentialsError, ClientError
 from models.CONST_VARS import CONST
 
+def is_running_in_docker():
+    # Check for Docker specific file or environment variable
+    if os.path.exists('/.dockerenv'):
+        return True
+    try:
+        with open('/proc/self/cgroup', 'r') as f:
+            if 'docker' in f.read():
+                return True
+    except FileNotFoundError:
+        pass
+    return False
+
 def print2(s):
     print(f"[+][{__name__}]"+s)
 
