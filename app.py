@@ -6,7 +6,7 @@ import os
 
 from models.utils import is_running_in_docker
 
-# import flaskwebgui
+from flask_socketio import SocketIO, emit
 
 from flask_session import Session
 
@@ -19,7 +19,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__)) #!root path. this is for deplo
 
 #Create an app object using the Flask class. 
 app = Flask(__name__, static_folder="static")
-# gui =  flaskwebgui.FlaskUI(app)
+socketio = SocketIO(app, cors_allowed_origins="*")  # Enable WebSocket support
 
 # Configure the secret key for encryption (required by Flask-Session)
 app.config['SECRET_KEY'] = 'your_secret_key_here'
@@ -49,6 +49,18 @@ def index():
     session['tab'] = 'offline'  # Initialize or update session variable
     return render_template('index.html' ,active_tab=session.get('tab'))
 
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+
+@socketio.on('message')
+def handle_message(message):
+    print('Received MIDI data:', message)
+
+# Handle WebSocket disconnect
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Client disconnected')
 
 @app.route('/realtime', methods=['POST'])
 def realtime():
@@ -145,5 +157,8 @@ if __name__ == "__main__":
         app.run(host='0.0.0.0', port=port)  #Define 0.0.0.0 for Docker
     else:
         print("[+] RUNNING locally")
-        app.run()
+        # app.run()
+        #! test
+        socketio.run(app, host='0.0.0.0', port=3009)
+
 
