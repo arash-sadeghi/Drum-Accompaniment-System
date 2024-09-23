@@ -14,7 +14,7 @@ predictor = Predictor()
 # va = VelocityAssigner()
 
 #Save images to the 'static' folder as Flask serves images from this directory
-UPLOAD_FOLDER = 'models/results/'
+UPLOAD_FOLDER = 'models/'
 ROOT = os.path.dirname(os.path.abspath(__file__)) #!root path. this is for deployment
 
 #Create an app object using the Flask class. 

@@ -43,7 +43,7 @@ class CONST:
     # ROOT = os.path.dirname(os.path.abspath(__file__)) #!root path. this is for deployment
     # os.path.join(ROOT,
     generator_file_path = 'models/generator_weights.pth'
-    result_path =  "models/results"
+    result_path =  "models"
 
     TIME_WINDOW = 30
     MIDI_OUT_PORT = 'IAC Driver Bus 2'
