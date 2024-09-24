@@ -8,4 +8,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: my-step
-        run: echo ${{secrets.AWS_REGIONT}}
+        run: echo "${{secrets.AWS_REGIONT}}"
+        run: echo "yo"
