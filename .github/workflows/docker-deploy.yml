@@ -54,4 +54,4 @@ jobs:
             docker kill  "$CONTAINERID" || true
             docker rm "$CONTAINERID" || true
             docker pull "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-            docker run -d --name das -p 3009:3009 "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+            docker run -d -p 3009:3009 "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
