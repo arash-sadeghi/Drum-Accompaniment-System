@@ -19,3 +19,7 @@ flask_session/
 models/generator_weights.pth
 *.pem
 notes.md
+task-definition-test-custom.json
+task-definition-test.json
+task-definition.json
+secret.md
