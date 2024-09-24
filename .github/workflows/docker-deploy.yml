@@ -48,12 +48,26 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
+          # script: |
+          #   CONTAINERID=$(docker ps -q --filter "ancestor=$ECR_REPOSITORY")
+          #   echo "$CONTAINERID"
+          #   echo ${{ github.sha }}
+          #   echo ${{ github.sha }}
+          #   docker kill  "$CONTAINERID" || true
+          #   docker rm "$CONTAINERID" || true
+          #   docker pull "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          #   docker run -d -p 3009:3009 "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+
           script: |
             CONTAINERID=$(docker ps -q --filter "ancestor=$ECR_REPOSITORY")
-            echo "$CONTAINERID"
-            echo ${{ github.sha }}
-            echo ${{ github.sha }}
-            docker kill  "$CONTAINERID" || true
-            docker rm "$CONTAINERID" || true
+            if [ -n "$CONTAINERID" ]; then
+              echo "Stopping and removing container $CONTAINERID"
+              docker kill "$CONTAINERID" || true
+              docker rm "$CONTAINERID" || true
+            else
+              echo "No containers found for $ECR_REPOSITORY"
+            fi
+
             docker pull "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
             docker run -d -p 3009:3009 "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
