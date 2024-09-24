@@ -24,12 +24,13 @@ jobs:
 
       - name: Log in to Amazon ECR
         id: ecr_login
-        run: |
-          aws --version
-           $(aws ecr get-login-password --region ${{ secrets.AWS_REGION }}) | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-        env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+        uses: aws-actions/amazon-ecr-login@v1
+        # run: |
+        #   aws --version
+        #    $(aws ecr get-login-password --region ${{ secrets.AWS_REGION }}) | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+        # env:
+        #   AWS_REGION: ${{ secrets.AWS_REGION }}
+        #   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
 
       - name: Build, Tag, and Push Docker image to ECR
         run: |
