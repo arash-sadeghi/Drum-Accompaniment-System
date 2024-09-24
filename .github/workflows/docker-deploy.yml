@@ -24,18 +24,14 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-
-
       - name: Build, Tag, and Push Docker image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: das
+          IMAGE_TAG: latest
         run: |
-          # Build the Docker image
-          docker build -t das .
-
-          # Tag the image for ECR
-          docker tag das:latest <AWS-ACCOUNT-ID>.dkr.ecr.<YOUR-AWS-REGION>.amazonaws.com/das:latest
-
-          # Push to ECR
-          docker push <AWS-ACCOUNT-ID>.dkr.ecr.<YOUR-AWS-REGION>.amazonaws.com/my-flask-app:latest
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Post successful build
         run: echo "Docker image built and pushed to ECR!"
