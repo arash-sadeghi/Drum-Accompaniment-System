@@ -39,11 +39,17 @@ jobs:
 
       - name: Deploy to EC2 instance
         uses: appleboy/ssh-action@master
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: das
+          IMAGE_TAG: ${{ github.sha }}
+
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
+            echo "hi"
             echo $ECR_REPOSITORY
             docker stop $ECR_REPOSITORY || true
             docker rm $ECR_REPOSITORY || true
