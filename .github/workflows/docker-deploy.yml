@@ -51,6 +51,8 @@ jobs:
           script: |
             CONTAINERID=$(docker ps -q --filter "ancestor=$ECR_REPOSITORY")
             echo "$CONTAINERID"
+            ${{ github.sha }}
+            ${{ github.sha }}
             docker kill  "$CONTAINERID" || true
             docker rm "$CONTAINERID" || true
             docker pull "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
