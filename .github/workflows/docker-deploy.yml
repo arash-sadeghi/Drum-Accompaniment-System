@@ -44,6 +44,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
+            echo $ECR_REPOSITORY
             docker stop $ECR_REPOSITORY || true
             docker rm $ECR_REPOSITORY || true
             docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
