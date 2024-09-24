@@ -51,7 +51,7 @@ jobs:
           script: |
             echo "hi"
             echo $ECR_REPOSITORY
-            docker stop $ECR_REPOSITORY || true
+            docker stop "$ECR_REPOSITORY" || true
             docker rm $ECR_REPOSITORY || true
             docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
             docker run -d --name das -p 3009:3009 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG

@@ -25,5 +25,5 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
             echo "hi"
-            echo $ECR_REPOSITORY
-            docker stop $ECR_REPOSITORY || true
+            echo "$ECR_REPOSITORY"
+            docker stop "$ECR_REPOSITORY" || true
