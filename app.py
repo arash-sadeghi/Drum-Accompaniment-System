@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, flash, jsonify, mak
 from werkzeug.utils import secure_filename
 from models.Predict import Predictor
 import os
+import json
 # from models.Velocity_assigner.assign_velocity import VelocityAssigner
 
 from models.utils import is_running_in_docker
@@ -55,7 +56,7 @@ def handle_connect():
 
 @socketio.on('message')
 def handle_message(message):
-    print('Received MIDI data:', message)
+    print('Received MIDI data:', json.loads(message))
 
 # Handle WebSocket disconnect
 @socketio.on('disconnect')
