@@ -57,6 +57,7 @@ def handle_connect():
 @socketio.on('message')
 def handle_message(message):
     print('Received MIDI data:', json.loads(message))
+    socketio.emit('server_message', {'message': 'Hello from the server!'})
 
 # Handle WebSocket disconnect
 @socketio.on('disconnect')
