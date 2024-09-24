@@ -3,11 +3,11 @@ RUN apt update
 RUN git clone --branch aws https://github.com/arash-sadeghi/Music-CGAN-app.git /app
 
 #!DEBUG to save time
-COPY models/Predict.py /app/models/
-COPY app.py /app/
-COPY models/generator_weights.pth /app/models/ 
-COPY requirements.txt /app/ 
-COPY models/CONST_VARS.py /app/models/ 
+# COPY models/Predict.py /app/models/
+# COPY app.py /app/
+# COPY models/generator_weights.pth /app/models/ 
+# COPY requirements.txt /app/ 
+# COPY models/CONST_VARS.py /app/models/ 
 
 RUN apt install -y libasound2 
 

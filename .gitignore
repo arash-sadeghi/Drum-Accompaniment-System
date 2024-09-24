@@ -16,7 +16,7 @@ data/
 dist/
 models/results/
 flask_session/
-models/generator_weights.pth
+# models/generator_weights.pth
 *.pem
 notes.md
 task-definition-test-custom.json
