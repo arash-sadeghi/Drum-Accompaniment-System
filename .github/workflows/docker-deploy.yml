@@ -22,10 +22,10 @@ jobs:
       - name: Build, Tag, and Push Docker image to ECR
         run: |
           # Build the Docker image
-          docker build -t my-flask-app .
+          docker build -t das .
 
           # Tag the image for ECR
-          docker tag my-flask-app:latest <AWS-ACCOUNT-ID>.dkr.ecr.<YOUR-AWS-REGION>.amazonaws.com/my-flask-app:latest
+          docker tag das:latest <AWS-ACCOUNT-ID>.dkr.ecr.<YOUR-AWS-REGION>.amazonaws.com/das:latest
 
           # Push to ECR
           docker push <AWS-ACCOUNT-ID>.dkr.ecr.<YOUR-AWS-REGION>.amazonaws.com/my-flask-app:latest
