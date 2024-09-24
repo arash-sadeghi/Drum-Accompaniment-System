@@ -13,17 +13,17 @@ jobs:
         run: echo "yo"
 
 
-      - name: Deploy to EC2 instance
-        uses: appleboy/ssh-action@master
-        env:
-          ECR_REPOSITORY: das
-          IMAGE_TAG: ${{ github.sha }}
+      # - name: Deploy to EC2 instance
+      #   uses: appleboy/ssh-action@master
+      #   env:
+      #     ECR_REPOSITORY: das
+      #     IMAGE_TAG: ${{ github.sha }}
 
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script: |
-            echo "hi"
-            echo "$ECR_REPOSITORY"
-            docker stop "$ECR_REPOSITORY" || true
+      #   with:
+      #     host: ${{ secrets.EC2_HOST }}
+      #     username: ${{ secrets.EC2_USERNAME }}
+      #     key: ${{ secrets.EC2_PRIVATE_KEY }}
+      #     script: |
+      #       echo "hi"
+      #       echo "$ECR_REPOSITORY"
+      #       docker stop "$ECR_REPOSITORY" || true
