@@ -8,6 +8,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      ECR_REPOSITORY: das
+      IMAGE_TAG: ${{ github.sha }}
+
+
 
     steps:
       - name: Checkout code
@@ -27,8 +32,6 @@ jobs:
       - name: Build, Tag, and Push Docker image to ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: das
-          IMAGE_TAG: ${{ github.sha }}
         run: |
           echo ${{ github.sha }}
           echo $ECR_REPOSITORY
@@ -44,8 +47,6 @@ jobs:
         uses: appleboy/ssh-action@master
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: das
-          IMAGE_TAG: ${{ github.sha }}
 
         with:
           host: ${{ secrets.EC2_HOST }}
