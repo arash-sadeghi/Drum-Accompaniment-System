@@ -78,5 +78,6 @@ jobs:
             else
               echo "No containers found for $ECR_REPOSITORY"
             fi
-
-            docker pull "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+            docker images -a -q | xargs -r docker rmi -f
+            echo "pulling $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+            sudo docker pull "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
