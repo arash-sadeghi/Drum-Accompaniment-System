@@ -53,17 +53,6 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           envs: ECR_REGISTRY,ECR_REPOSITORY,IMAGE_TAG
-          # script: |
-          #   CONTAINERID=$(docker ps -q --filter "ancestor=$ECR_REPOSITORY")
-          #   echo "$CONTAINERID"
-          #   echo ${{ github.sha }}
-          #   echo ${{ github.sha }}
-          #   docker kill  "$CONTAINERID" || true
-          #   docker rm "$CONTAINERID" || true
-          #   docker pull "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          #   docker run -d -p 3009:3009 "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-
-
           script: |
             echo ${{ github.sha }}
             echo "ECR_REPOSITORY $ECR_REPOSITORY"
@@ -81,3 +70,4 @@ jobs:
             docker images -a -q | xargs -r docker rmi -f
             echo "pulling $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
             sudo docker pull "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+            docker run -d -p 3009:3009 "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
