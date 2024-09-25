@@ -10,10 +10,13 @@ jobs:
       - name: my-step
         run: echo "${{secrets.AWS_REGIONT}}"
       - name: my-step2
+        env:
+          SIH : siiiiiii
         run: |
           echo "yo"
           echo ${{ github.sha }}
-          echo ${{ github.sha }}
+          echo "$SIH"
+          echo "$SIH/$SIH"
 
 
       # - name: Deploy to EC2 instance
