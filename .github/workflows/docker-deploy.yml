@@ -54,20 +54,12 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           envs: ECR_REGISTRY,ECR_REPOSITORY,IMAGE_TAG
           script: |
-            echo ${{ github.sha }}
-            echo "ECR_REPOSITORY $ECR_REPOSITORY"
-            echo "ECR_REGISTRY $ECR_REGISTRY"
-            echo "Deploying from $ECR_REPOSITORY"
-
-            CONTAINERID=$(docker ps -q --filter "ancestor=$ECR_REPOSITORY")
-            if [ -n "$CONTAINERID" ]; then
-              echo "Stopping and removing container $CONTAINERID"
-              docker kill "$CONTAINERID" || true
-              docker rm "$CONTAINERID" || true
-            else
-              echo "No containers found for $ECR_REPOSITORY"
-            fi
-            docker images -a -q | xargs -r docker rmi -f
+            docker stop $(docker ps -a -q)
+            docker ps -a | grep 'weeks ago' | awk '{print $1}' | xargs --no-run-if-empty docker rm
+            docker ps -a | grep 'weeks ago' | awk '{print $1}' | xargs --no-run-if-empty docker rm
+            docker rm $(docker ps -a -q)
+            docker rmi $(docker images -q)
+            sudo service docker stop && sudo rm -rf /var/lib/docker && sudo service docker stop && sudo service docker start
             echo "pulling $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
             sudo docker pull "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-            sudo docker run  -p 3009:3009 -d "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+            sudo docker run --name das  -p 3009:3009 -d "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
