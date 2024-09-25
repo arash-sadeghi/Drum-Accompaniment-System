@@ -69,6 +69,7 @@ jobs:
             echo "$ECR_REGISTRY"/"$ECR_REPOSITORY":"$IMAGE_TAG"
             echo $ECR_REPOSITORY
             echo $ECR_REGISTRY
+            echo ${{ steps.set-output.outputs.ecr_repository }}
             ECR_REPOSITORY=${{ steps.set-output.outputs.ecr_repository }}
             echo "Deploying from $ECR_REPOSITORY"
 
