@@ -58,7 +58,6 @@ jobs:
             docker ps -a | grep 'weeks ago' | awk '{print $1}' | xargs --no-run-if-empty docker rm
             docker rm $(docker ps -a -q)
             docker rmi $(docker images -q)
-            sudo service docker stop && sudo rm -rf /var/lib/docker && sudo service docker stop && sudo service docker start
             echo "pulling $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
             sudo docker pull "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
             sudo docker run --name das  -p 3009:3009 -d "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
