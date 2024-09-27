@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ECR_REPOSITORY: das
-      IMAGE_TAG: ${{ github.sha }}
+      IMAGE_TAG: latest
 
 
 
@@ -54,10 +54,6 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           envs: ECR_REGISTRY,ECR_REPOSITORY,IMAGE_TAG
           script: |
-            docker stop $(docker ps -a -q)
-            docker ps -a | grep 'weeks ago' | awk '{print $1}' | xargs --no-run-if-empty docker rm
-            docker rm $(docker ps -a -q)
-            docker rmi $(docker images -q)
             echo "pulling $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
             sudo docker pull "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
             sudo docker run --name das  -p 3009:3009 -d "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
