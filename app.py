@@ -97,6 +97,7 @@ def realtime():
 @app.route('/offline', methods=['POST'])
 def submit_file():
     global res_path
+    print("request made to offlione --------------")
     if request.method == 'POST':
         # Check if the file is present in the request
         if 'file' not in request.files:
@@ -131,26 +132,17 @@ def submit_file():
             flash(label)
             full_filename = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             flash(full_filename)
-            return redirect('/download')
 
+            with open(res_path,'rb') as f:
+                file_content = f.read()
+            response = make_response(file_content)
 
+            response.headers['Content-Type'] = 'application/octet-stream'
+            response.headers['Content-Disposition'] = 'attachment; filename="'+os.path.basename(res_path)+'"'
 
-@app.route('/download')
-def download_file():
-    global res_path
-    # Generate or fetch the file content dynamically
-    with open(res_path,'rb') as f:
-        file_content = f.read()
+            os.remove(res_path)
 
-    # Create a response with the file content as attachment
-    response = make_response(file_content)
-
-    # Set the appropriate content type and headers for file download
-    response.headers['Content-Type'] = 'application/octet-stream'
-    response.headers['Content-Disposition'] = 'attachment; filename="'+os.path.basename(res_path)+'"'
-    redirect('/')
-
-    return response
+            return response
 
 if __name__ == "__main__":
     if is_running_in_docker():
