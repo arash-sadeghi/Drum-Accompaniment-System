@@ -1,3 +1,8 @@
+# Notes for rest api backend
+- backedn in measuring batch duration in backends time.
+- first listening is not threaded
+
+
 # Deplyment probelms
 ## webgui
 - bass_piano_roll = torch.tensor(bass_piano_roll) blocks webgui. it doesn't allow for app to continue

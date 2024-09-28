@@ -53,46 +53,38 @@ def index():
 @socketio.on('connect')
 def handle_connect():
     print('Client connected')
-
-@socketio.on('message')
-def handle_message(message):
-    print('Received MIDI data:', json.loads(message))
-    socketio.emit('server_message', {'message': 'Hello from the server!'})
+# @socketio.on('message')
+# def handle_message(message):
+#     print('Received MIDI data:', json.loads(message))
+#     socketio.emit('server_message', {'message': 'Hello from the server!'})
 
 # Handle WebSocket disconnect
 @socketio.on('disconnect')
 def handle_disconnect():
     print('Client disconnected')
+    predictor.stop_real_time()
 
-@app.route('/realtime', methods=['POST'])
-def realtime():
-    print(">"*10,request.method )
-    if request.method == 'POST':
-        data = request.json
-        action = data.get('action')
+@socketio.on('message', namespace='/realtime')
+def realtime(data):
+    data = json.loads(data)
 
-        if action == 'Start':
-            midiin = data.get('midiin')
-            midiout = data.get('midiout')
-            # midiin = request.form.get('midiin')
-            # midiout = request.form.get('midiout')
-            print(f"[+][app.py] real time button pressed. Listening to {midiin} and out to {midiout}")
-            predictor.set_midi_io(midiin,midiout)
+    if data["action"] == 'Start':
+        print(f"[+][app.py] starting real-time")
+        predictor.real_time_setup()
+
+    elif data["action"] == 'Stop':
+        predictor.stop_real_time()
+        print(f"[+][app.py] real time stopped")
+
+    elif data["action"] == 'Process':
+        if predictor.MRH.get_initilized():
+            predictor.real_time_receive(data)
+        else:
+            print('[app.py] MRH is not initilized yet. but now it is')
             predictor.real_time_setup()
-            # return redirect('/')
-            print(url_for('realtime'))
-            session['tab'] = 'realtime'  # Store the active tab in session
-            # return jsonify({'status': 'success', 'active_tab': 'realtime'})
-
-        elif action == 'Stop':
-            predictor.stop_real_time()
-            session['tab'] = 'realtime'  # Store the active tab in session
-            # return jsonify({'status': 'success', 'active_tab': 'realtime'})
-            print(f"[+][app.py] real time stopped")
 
 
-
-        return jsonify(success=True)
+    return jsonify(success=True)
 
 @app.route('/offline', methods=['POST'])
 def submit_file():
