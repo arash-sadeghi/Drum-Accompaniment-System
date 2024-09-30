@@ -50,15 +50,16 @@ def index():
     session['tab'] = 'offline'  # Initialize or update session variable
     return render_template('index.html' ,active_tab=session.get('tab'))
 
-@socketio.on('connect')
+# @socketio.on('connect')
+@socketio.on('connect', namespace='/realtime')
 def handle_connect():
-    print('Client connected')
-# @socketio.on('message')
-# def handle_message(message):
-#     print('Received MIDI data:', json.loads(message))
-#     socketio.emit('server_message', {'message': 'Hello from the server!'})
+    print('Client connected xxxxxxxxxxxxxxx')
 
-# Handle WebSocket disconnect
+@socketio.on('message')
+def handle_message(message):
+    print('message rec',message)
+    socketio.emit('server_message', {'message': 'Hello from the server!'})
+
 @socketio.on('disconnect')
 def handle_disconnect():
     print('Client disconnected')
@@ -70,7 +71,7 @@ def realtime(data):
 
     if data["action"] == 'Start':
         print(f"[+][app.py] starting real-time")
-        predictor.real_time_setup()
+        predictor.real_time_setup(socketio)
 
     elif data["action"] == 'Stop':
         predictor.stop_real_time()
@@ -81,7 +82,7 @@ def realtime(data):
             predictor.real_time_receive(data)
         else:
             print('[app.py] MRH is not initilized yet. but now it is')
-            predictor.real_time_setup()
+            predictor.real_time_setup(socketio)
 
 
     return jsonify(success=True)

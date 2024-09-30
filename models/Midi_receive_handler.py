@@ -21,6 +21,7 @@ class Midi_Receive_Handler:
         self.message_queue = queue.Queue()
         self.result_queue = queue.Queue()
         processing_thread.start()
+        self.stop_listening_flag = False
 
     def init(self):
         self.pm_data = pretty_midi.PrettyMIDI()  # Create empty PrettyMIDI object
@@ -34,7 +35,7 @@ class Midi_Receive_Handler:
         return self.initilized
 
     def message_processor(self):
-        while True:
+        while not self.stop_listening_flag:
             if self.message_queue.qsize == 0 :
                 continue
 
@@ -75,4 +76,8 @@ class Midi_Receive_Handler:
 
     def get_result_queue(self):
         return self.result_queue
+
+    def stop_listening(self):
+        self.processing_thread.join()
+        self.stop_listening_flag = True
 

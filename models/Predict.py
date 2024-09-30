@@ -26,6 +26,7 @@ from time import time
 
 from mido import get_input_names, get_output_names
 from models.Midi_receive_handler import Midi_Receive_Handler
+from models.midi_publish_handler import Midi_Publish_Handler
 
 def replace_drum(DB_path, D_path, output_path, vels):
     DB = pretty_midi.PrettyMIDI(DB_path)
@@ -49,6 +50,7 @@ class Predictor:
         self.generator.eval() #! this solve error thrown by data length
         self.MRH = Midi_Receive_Handler()
         self.midi_port_out = mido.open_output('IAC Driver Bus 2') #TODO remove
+        self.MPH = Midi_Publish_Handler()
 
     def generate_drum(self, bass_piano_roll = None, tempo_array = None, bass_url = None):
         print("[+] Predictor predicting offline drum")
@@ -119,49 +121,6 @@ class Predictor:
         multi_track_drum.to_pretty_midi().write(output_midi_drum_name)
         return DB_midi , output_midi_name , output_midi_drum_name
     
-    def publish_midi(self):
-        while not self.stop_listening :
-            publish_duration = time()
-            if self.processing_queue_2Bpublished.qsize() == 0:
-                continue
-            pretty_midi_messages = self.processing_queue_2Bpublished.get()  # Get messages from the queue
-            self.processing_queue_2Bpublished.task_done()  # Mark the task as done
-
-            # pretty_midi_messages = pretty_midi.PrettyMIDI('test.midi')
-            drum = None
-            for instrument in pretty_midi_messages.instruments:
-                if instrument.is_drum: #TODO debug
-                    drum = instrument
-                    break
-            
-            assert not (drum is None)
-
-            # start_time = time()
-            #     passed_time = time() - start_time
-            mido_messages = []
-            for note in drum.notes:
-                mido_messages.append(mido.Message('note_on', note=note.pitch, velocity=note.velocity, time = note.start))
-                mido_messages.append(mido.Message('note_off', note=note.pitch, velocity=0,time=note.end))
-
-            mido_messages_sorted = sorted(mido_messages, key=lambda x: x.time)
-            midi_duration = mido_messages_sorted[-1].time
-            print(f"[+][PUBLISHER] MIDI duration {midi_duration} and number of midi messages {len(mido_messages_sorted)}")
-            start_time = time()
-            passed_time = time() - start_time
-            message_counter = 0
-            # print(f"[+][PUBLISHER] from listening to publishing took {time()-self.process_begin_time}")
-            #TODO bypassing while time check to allow generation of drum more than time window for jamming test purpose
-            while True:
-                passed_time = time() - start_time
-                if mido_messages_sorted[message_counter].time - passed_time <=0.001:
-                    self.midi_port_out.send(mido_messages_sorted[message_counter])
-                    # print(f"[+][PUBLISHER] on time {passed_time} Sent {mido_messages_sorted[message_counter]}")
-                    message_counter +=1
-                if message_counter >= len(mido_messages_sorted):
-                    break
-
-            print(f"[+][PUBLISHER] publishing duration ----> {time()- publish_duration}")
-    
 
     def generate_drum_thread(self):
         while not self.stop_listening :
@@ -176,21 +135,20 @@ class Predictor:
             lsitened_queue.task_done()
 
             print("[Predictor] sent to publish in queue")
-            self.processing_queue_2Bpublished.put(drum_midi)
+            self.MPH.get_queue().put(drum_midi)
 
         
-    def real_time_setup(self):
+    def real_time_setup(self,socket):
         print("[+] real_time_loop started")
         self.MRH.init()
+        self.MPH.set_socket(socket)
         self.stop_listening = False
 
-        self.lock = threading.Lock()
-        self.processing_queue_2Bpublished = queue.Queue()
-        self.processing_thread = threading.Thread(target=self.publish_midi)
-        self.processing_thread.start()
+        self.lock = threading.Lock() #TODO should this be set to other classed MPH and MRH as well?
 
         self.processing_thread_drum_gen = threading.Thread(target=self.generate_drum_thread)
         self.processing_thread_drum_gen.start()
+
 
     def real_time_receive(self,message):
         self.MRH.recieve_midi(message)
@@ -199,7 +157,9 @@ class Predictor:
         print("[Predictor] stopping realtime loop ... ")
         self.stop_listening = True
         self.processing_thread_drum_gen.join()
-        self.processing_thread.join()
+        self.MPH.stop_listening()
+        self.MRH.stop_listening()
+
         print("[Predictor] realtime loop stoped")
 
 
