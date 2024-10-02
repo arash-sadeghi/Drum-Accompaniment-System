@@ -54,6 +54,11 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           envs: ECR_REGISTRY,ECR_REPOSITORY,IMAGE_TAG
           script: |
+            echo "Stopping and removing all running Docker containers to free up space"
+            sudo docker ps -q | xargs -r sudo docker stop   # Stops all running containers
+            sudo docker ps -a -q | xargs -r sudo docker rm  # Removes all containers
+
             echo "pulling $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
             docker pull "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
             sudo docker run --name das  -p 3009:3009 -d "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
