@@ -2,6 +2,7 @@
 - handle multiple ws requests incomming
 - send ws messages in batch rather than one by one.
 - aws ecr login requires manualy interfierence
+- allow_unsafe_werkzeug=True should be avoided
 # Notes for rest api backend
 - backedn in measuring batch duration in backends time.
 - first listening is not threaded
