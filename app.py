@@ -74,8 +74,8 @@ def realtime(data):
         predictor.real_time_setup(socketio)
 
     elif data["action"] == 'Stop':
-        predictor.stop_real_time()
         print(f"[+][app.py] real time stopped")
+        predictor.stop_real_time()
 
     elif data["action"] == 'Process':
         if predictor.MRH.get_initilized():

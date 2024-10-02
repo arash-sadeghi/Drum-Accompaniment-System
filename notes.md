@@ -1,3 +1,7 @@
+# TODO
+- handle multiple ws requests incomming
+- send ws messages in batch rather than one by one.
+- aws ecr login requires manualy interfierence
 # Notes for rest api backend
 - backedn in measuring batch duration in backends time.
 - first listening is not threaded

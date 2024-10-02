@@ -49,4 +49,5 @@ class CONST:
     MIDI_OUT_PORT = 'IAC Driver Bus 2'
     MIDI_INPUT_PORT = 'IAC Driver Bus 1'
     GENRE = 'Pop_Rock'
-    SAVE_PATH = os.path.join(result_path,f'generated_drum_{GENRE}_{get_time()}')
+    _current_time = get_time()
+    SAVE_PATH = os.path.join(result_path,f'generated_drum_{GENRE}_{_current_time}')
