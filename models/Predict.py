@@ -49,7 +49,6 @@ class Predictor:
         self.generator.load_state_dict(torch.load(Predictor.WEIGHT_PATH , map_location=torch.device('cpu'))) #TODO specific to cpu machine only
         self.generator.eval() #! this solve error thrown by data length
         self.MRH = Midi_Receive_Handler()
-        self.midi_port_out = mido.open_output('IAC Driver Bus 2') #TODO remove
         self.MPH = Midi_Publish_Handler()
 
     def generate_drum(self, bass_piano_roll = None, tempo_array = None, bass_url = None):
@@ -159,7 +158,6 @@ class Predictor:
         self.processing_thread_drum_gen.join()
         self.MPH.stop_listening()
         self.MRH.stop_listening()
-
         print("[Predictor] realtime loop stoped")
 
 
