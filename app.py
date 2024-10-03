@@ -10,7 +10,7 @@ from flask_socketio import SocketIO, emit
 
 from flask_session import Session
 
-import eventlet
+# import eventlet
 
 predictor = Predictor()
 # va = VelocityAssigner()

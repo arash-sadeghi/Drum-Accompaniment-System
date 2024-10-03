@@ -3,7 +3,7 @@ name: Build and Deploy Docker Image to AWS ECR
 on:
   push:
     branches:
-      - aws 
+      - aws-deploy
 
 jobs:
   build:

@@ -22,4 +22,4 @@ RUN pip install -r requirements.txt
 
 
 EXPOSE 3009
-CMD ["python", "app.py"]
+CMD ["python", "wsgi.py"]

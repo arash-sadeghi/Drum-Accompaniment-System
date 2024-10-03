@@ -9,6 +9,7 @@ charset-normalizer==3.3.2
 click==8.1.7
 contourpy==1.2.0
 cycler==0.12.1
+dnspython==2.6.1
 eventlet==0.37.0
 filelock==3.13.1
 Flask==3.0.2
@@ -17,6 +18,8 @@ Flask-SocketIO==5.3.7
 flaskwebgui==1.1.2
 fonttools==4.49.0
 fsspec==2024.2.0
+greenlet==3.1.1
+gunicorn==23.0.0
 h11==0.14.0
 huggingface-hub==0.21.3
 idna==3.6
@@ -26,6 +29,7 @@ jmespath==1.0.1
 kiwisolver==1.4.5
 macholib==1.16.3
 MarkupSafe==2.1.5
+matplotlib==3.9.2
 miditok==3.0.1
 mido==1.3.2
 mpmath==1.3.0
@@ -62,4 +66,6 @@ tqdm==4.66.2
 transformers==4.38.2
 typing_extensions==4.9.0
 urllib3==2.2.1
+uWSGI==2.0.27
+Werkzeug==3.0.4
 wsproto==1.2.0
