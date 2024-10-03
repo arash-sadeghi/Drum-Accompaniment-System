@@ -61,4 +61,4 @@ jobs:
             echo "pulling $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
             docker pull "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-            sudo docker run --name das  -p 3009:3009 -d "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+            sudo docker run --name das  -p 5000:5000 -d "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
