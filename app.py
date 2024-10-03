@@ -140,7 +140,7 @@ def submit_file():
 
 if __name__ == "__main__":
     if is_running_in_docker():
-        print("[+] RUNNING in docker")
+        print("[+] RUNNING in docker xxx")
         socketio.run(app, host='0.0.0.0', port=5000)
         
     else:
