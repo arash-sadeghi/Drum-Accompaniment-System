@@ -10,7 +10,7 @@ from flask_socketio import SocketIO, emit
 
 from flask_session import Session
 
-# import eventlet
+import eventlet
 
 predictor = Predictor()
 # va = VelocityAssigner()
@@ -141,14 +141,10 @@ def submit_file():
 if __name__ == "__main__":
     if is_running_in_docker():
         print("[+] RUNNING in docker")
-        port = int(os.environ.get('PORT', 3009)) #Define port so we can map container port to localhost
-        # app.run(host='0.0.0.0', port=port)  #Define 0.0.0.0 for Docker
-        socketio.run(app, host='0.0.0.0', port=3009)
+        socketio.run(app, host='0.0.0.0', port=5000)
         
     else:
         print("[+] RUNNING locally")
-        # app.run()
-        #! test
-        socketio.run(app, host='0.0.0.0', port=3009)
-
+        socketio.run(app, host='0.0.0.0', port=5000)
+    # socketio.run(app )
 

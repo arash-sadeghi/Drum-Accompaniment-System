@@ -21,5 +21,5 @@ RUN pip install -r requirements.txt
 # RUN wget -O models/Velocity_assigner/weights_1500.pts "$(cat BERT_download_link.txt)"
 
 
-EXPOSE 3009
-CMD ["python", "wsgi.py"]
+EXPOSE 5000
+CMD ["python", "-u",  "app.py"]
