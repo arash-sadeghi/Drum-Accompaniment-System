@@ -9,6 +9,7 @@ charset-normalizer==3.3.2
 click==8.1.7
 contourpy==1.2.0
 cycler==0.12.1
+eventlet==0.37.0
 filelock==3.13.1
 Flask==3.0.2
 Flask-Session==0.8.0
@@ -25,7 +26,6 @@ jmespath==1.0.1
 kiwisolver==1.4.5
 macholib==1.16.3
 MarkupSafe==2.1.5
-matplotlib==3.8.3
 miditok==3.0.1
 mido==1.3.2
 mpmath==1.3.0
@@ -62,5 +62,4 @@ tqdm==4.66.2
 transformers==4.38.2
 typing_extensions==4.9.0
 urllib3==2.2.1
-Werkzeug==3.0.1
 wsproto==1.2.0

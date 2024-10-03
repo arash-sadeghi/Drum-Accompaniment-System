@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, redirect, flash, jsonify, make_response, url_for,session
-from werkzeug.utils import secure_filename
 from models.Predict import Predictor
 import os
 import json
@@ -10,6 +9,8 @@ from models.utils import is_running_in_docker
 from flask_socketio import SocketIO, emit
 
 from flask_session import Session
+
+import eventlet
 
 predictor = Predictor()
 # va = VelocityAssigner()
@@ -110,7 +111,7 @@ def submit_file():
             return redirect(request.url)
         
         if file:
-            filename = secure_filename(file.filename)  # Use this werkzeug method to secure filename.
+            # filename = secure_filename(file.filename)  # Use this werkzeug method to secure filename.
             save_path = os.path.join(ROOT,app.config['UPLOAD_FOLDER'],'user_file.midi')
             file.save(save_path)
             _ , res_path , _ = predictor.generate_drum(bass_url = save_path)
@@ -123,8 +124,8 @@ def submit_file():
 
             label = "Drum successfully generated"
             flash(label)
-            full_filename = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            flash(full_filename)
+            # full_filename = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            # flash(full_filename)
 
             with open(res_path,'rb') as f:
                 file_content = f.read()
@@ -142,7 +143,7 @@ if __name__ == "__main__":
         print("[+] RUNNING in docker")
         port = int(os.environ.get('PORT', 3009)) #Define port so we can map container port to localhost
         # app.run(host='0.0.0.0', port=port)  #Define 0.0.0.0 for Docker
-        socketio.run(app, host='0.0.0.0', port=3009, allow_unsafe_werkzeug=True)
+        socketio.run(app, host='0.0.0.0', port=3009)
         
     else:
         print("[+] RUNNING locally")

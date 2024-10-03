@@ -10,9 +10,9 @@ class Midi_Publish_Handler:
     def __init__(self) -> None:
         self.processing_queue_2Bpublished = queue.Queue()
         self.socket = None
+        self.stop_listening_flag = False
         self.processing_thread = threading.Thread(target=self.publish, daemon=True)
         self.processing_thread.start()
-        self.stop_listening_flag = False
         # self.midi_port_out = mido.open_output('IAC Driver Bus 3') #TODO debug
 
     def stop_listening(self):

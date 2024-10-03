@@ -17,11 +17,11 @@ class Message:
 class Midi_Receive_Handler:
     def __init__(self) -> None:
         self.initilized = False
-        processing_thread = threading.Thread(target=self.message_processor, daemon=True)
+        self.stop_listening_flag = False
         self.message_queue = queue.Queue()
         self.result_queue = queue.Queue()
+        processing_thread = threading.Thread(target=self.message_processor, daemon=True)
         processing_thread.start()
-        self.stop_listening_flag = False
 
     def init(self):
         self.pm_data = pretty_midi.PrettyMIDI()  # Create empty PrettyMIDI object
