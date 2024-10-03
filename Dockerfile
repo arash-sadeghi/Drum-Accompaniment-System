@@ -1,6 +1,6 @@
 FROM python:3.11.5
 RUN apt update
-RUN git clone --branch aws https://github.com/arash-sadeghi/Music-CGAN-app.git /app
+RUN git clone --branch aws-deploy https://github.com/arash-sadeghi/Music-CGAN-app.git /app
 RUN apt install -y libasound2 
 WORKDIR /app
 RUN git pull
