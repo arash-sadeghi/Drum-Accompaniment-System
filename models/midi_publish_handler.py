@@ -4,7 +4,10 @@ import threading
 import queue
 import json
 from numpy import int64
+
 import mido #TODO debug
+from flask_socketio import emit #TODO debug
+
 class Midi_Publish_Handler:
 
     def __init__(self) -> None:
@@ -12,15 +15,26 @@ class Midi_Publish_Handler:
         self.socket = None
         self.stop_listening_flag = False
         self.processing_thread = threading.Thread(target=self.publish, daemon=True)
-        self.processing_thread.start()
+        # self.processing_thread.start()
+        # self.emit = None
+        self.emit = emit
         # self.midi_port_out = mido.open_output('IAC Driver Bus 3') #TODO debug
+        self.app = None
 
     def stop_listening(self):
         self.stop_listening_flag = True 
         self.processing_thread.join()
 
-    def set_socket(self,socket):
+    def set_socket(self,socket, app):
         self.socket = socket
+        self.test()
+        self.processing_thread.start()
+        self.app = app
+
+
+    def test(self):
+        self.emit('HI', {'message': 'Hello from the server from MPH!'},namespace='/realtime',broadcast=True)
+
 
     def get_queue(self):
         return self.processing_queue_2Bpublished
@@ -69,6 +83,8 @@ class Midi_Publish_Handler:
                 passed_time = time() - start_time
                 if mido_messages_sorted[message_counter]['time'] - passed_time <=0.001:
                     self.socket.emit('server_message', [mido_messages_sorted[message_counter]], namespace='/realtime')
+                    # with self.app.app_context():
+                    #     self.emit('server_message', [mido_messages_sorted[message_counter]], namespace='/realtime',broadcast=True)
                     # self.midi_port_out.send(mido_messages_mido_sorted[message_counter])#TODO debug
                     # print(f"[+][PUBLISHER] on time {passed_time} Sent {mido_messages_sorted[message_counter]}")
                     message_counter +=1

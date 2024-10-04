@@ -51,3 +51,4 @@ class CONST:
     GENRE = 'Pop_Rock'
     _current_time = get_time()
     SAVE_PATH = os.path.join(result_path,f'generated_drum_{GENRE}_{_current_time}')
+    # SAVE_PATH = os.path.join(result_path,f'generated_drum_{GENRE}_{_current_time}')

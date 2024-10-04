@@ -137,10 +137,10 @@ class Predictor:
             self.MPH.get_queue().put(drum_midi)
 
         
-    def real_time_setup(self,socket):
+    def real_time_setup(self,socket, app):
         print("[+] real_time_loop started")
         self.MRH.init()
-        self.MPH.set_socket(socket)
+        self.MPH.set_socket(socket, app)
         self.stop_listening = False
 
         self.lock = threading.Lock() #TODO should this be set to other classed MPH and MRH as well?

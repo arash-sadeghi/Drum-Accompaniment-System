@@ -10,8 +10,7 @@ from flask_socketio import SocketIO, emit
 
 from flask_session import Session
 
-import eventlet
-
+# import eventlet
 predictor = Predictor()
 # va = VelocityAssigner()
 
@@ -21,7 +20,8 @@ ROOT = os.path.dirname(os.path.abspath(__file__)) #!root path. this is for deplo
 
 #Create an app object using the Flask class. 
 app = Flask(__name__, static_folder="static")
-socketio = SocketIO(app, cors_allowed_origins="*")  # Enable WebSocket support
+socketio = SocketIO(app, cors_allowed_origins="*") 
+# socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 # Configure the secret key for encryption (required by Flask-Session)
 app.config['SECRET_KEY'] = 'your_secret_key_here'
@@ -56,15 +56,18 @@ def index():
 def handle_connect():
     print('Client connected xxxxxxxxxxxxxxx')
 
-@socketio.on('message')
+# @socketio.on('message', namespace='/realtime')
 def handle_message(message):
     print('message rec',message)
-    socketio.emit('server_message', {'message': 'Hello from the server!'})
+    emit('server_message', {'message': 'Hello from the server!'},namespace='/realtime',broadcast=True)
+    from models.midi_publish_handler import Midi_Publish_Handler
+    tmp = Midi_Publish_Handler()
+    tmp.test()
 
-@socketio.on('disconnect')
+@socketio.on('disconnect' , namespace='/realtime')
 def handle_disconnect():
-    print('Client disconnected')
-    predictor.stop_real_time()
+    print('[-][app.py]Client disconnected')
+    # predictor.stop_real_time()
 
 @socketio.on('message', namespace='/realtime')
 def realtime(data):
@@ -72,7 +75,7 @@ def realtime(data):
 
     if data["action"] == 'Start':
         print(f"[+][app.py] starting real-time")
-        predictor.real_time_setup(socketio)
+        predictor.real_time_setup(socketio , app)
 
     elif data["action"] == 'Stop':
         print(f"[+][app.py] real time stopped")
@@ -83,7 +86,7 @@ def realtime(data):
             predictor.real_time_receive(data)
         else:
             print('[app.py] MRH is not initilized yet. but now it is')
-            predictor.real_time_setup(socketio)
+            predictor.real_time_setup(socketio, app)
 
 
     return jsonify(success=True)
