@@ -20,8 +20,8 @@ class Midi_Receive_Handler:
         self.stop_listening_flag = False
         self.message_queue = queue.Queue()
         self.result_queue = queue.Queue()
-        processing_thread = threading.Thread(target=self.message_processor, daemon=True)
-        processing_thread.start()
+        self.processing_thread = threading.Thread(target=self.message_processor, daemon=True)
+        self.processing_thread.start()
 
     def init(self):
         self.pm_data = pretty_midi.PrettyMIDI()  # Create empty PrettyMIDI object
@@ -47,7 +47,7 @@ class Midi_Receive_Handler:
             elif message.type == 'note_off':
                 if str(message.note) in self.ons.keys():
                     note = pretty_midi.Note(
-                        velocity=message.velocity, #! this is not accurate becuse note on and note off velocities are different
+                        velocity=127 ,# message.velocity, #! this is not accurate becuse note on and note off velocities are different DEBUG
                         pitch=message.note,
                         start = self.ons[str(message.note)],
                         end = message.time - self.batch_start_time   #TODO mixing fronted and backend time
