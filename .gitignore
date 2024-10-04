@@ -1,4 +1,4 @@
-.env/
+.env*/
 .DS_Store
 static/data/
 models/__pycache__/*
