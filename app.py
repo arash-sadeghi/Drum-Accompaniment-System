@@ -1,3 +1,5 @@
+# from gevent import monkey
+# monkey.patch_all()
 from flask import Flask, render_template, request, redirect, flash, jsonify, make_response, url_for,session
 from models.Predict import Predictor
 import os
@@ -20,8 +22,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__)) #!root path. this is for deplo
 
 #Create an app object using the Flask class. 
 app = Flask(__name__, static_folder="static")
-socketio = SocketIO(app, cors_allowed_origins="*") 
-# socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='gevent')
 
 # Configure the secret key for encryption (required by Flask-Session)
 app.config['SECRET_KEY'] = 'your_secret_key_here'
