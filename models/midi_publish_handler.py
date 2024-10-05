@@ -4,8 +4,6 @@ import threading
 import queue
 import json
 from numpy import int64
-
-import mido #TODO debug
 from flask_socketio import emit #TODO debug
 
 class Midi_Publish_Handler:
@@ -15,10 +13,7 @@ class Midi_Publish_Handler:
         self.socket = None
         self.stop_listening_flag = False
         self.processing_thread = threading.Thread(target=self.publish, daemon=True)
-        # self.processing_thread.start()
-        # self.emit = None
         self.emit = emit
-        # self.midi_port_out = mido.open_output('IAC Driver Bus 3') #TODO debug
         self.app = None
 
     def stop_listening(self):
@@ -29,7 +24,7 @@ class Midi_Publish_Handler:
         self.socket = socket
         self.test()
         self.processing_thread.start()
-        self.app = app
+        self.app = app #TODO fix emit coantext probelm
 
 
     def test(self):
@@ -55,14 +50,9 @@ class Midi_Publish_Handler:
             
             assert not (drum is None)
 
-            # start_time = time()
-            #     passed_time = time() - start_time
             mido_messages = []
-            # mido_messages_mido = []#TODO debug
             for note in drum.notes:
                 #! trying to avoid sending mido through websocket
-                # mido_messages_mido.append(mido.Message('note_on', note=note.pitch, velocity=note.velocity, time = note.start))#TODO debug
-                # mido_messages_mido.append(mido.Message('note_off', note=note.pitch, velocity=0,time=note.end))#TODO debug
                 mido_messages.append({'type':'note_on', 'note' : int(note.pitch), 'velocity': int(note.velocity), "time" : float(round(note.start,2))})
                 mido_messages.append({'type':'note_off', 'note' : int(note.pitch), 'velocity': 0, "time" : float(round(note.end,2))})
             
@@ -70,26 +60,5 @@ class Midi_Publish_Handler:
             # mido_messages_mido_sorted = sorted(mido_messages_mido, key=lambda x: x.time)#TODO debug
 
             print('emitting')
-            # self.socket.emit('server_message', mido_messages_sorted, namespace='/realtime')
-
-            # midi_duration = mido_messages_sorted[-1].time
-            # print(f"[+][PUBLISHER] MIDI duration {midi_duration} and number of midi messages {len(mido_messages_sorted)}")
-            start_time = time()
-            passed_time = time() - start_time
-            message_counter = 0
-            # print(f"[+][PUBLISHER] from listening to publishing took {time()-self.process_begin_time}")
-            #TODO bypassing while time check to allow generation of drum more than time window for jamming test purpose
-            while True:
-                passed_time = time() - start_time
-                if mido_messages_sorted[message_counter]['time'] - passed_time <=0.001:
-                    self.socket.emit('server_message', [mido_messages_sorted[message_counter]], namespace='/realtime')
-                    # with self.app.app_context():
-                    #     self.emit('server_message', [mido_messages_sorted[message_counter]], namespace='/realtime',broadcast=True)
-                    # self.midi_port_out.send(mido_messages_mido_sorted[message_counter])#TODO debug
-                    # print(f"[+][PUBLISHER] on time {passed_time} Sent {mido_messages_sorted[message_counter]}")
-                    message_counter +=1
-                if message_counter >= len(mido_messages_sorted):
-                    break
-
-            # print(f"[+][PUBLISHER] publishing duration ----> {time()- publish_duration}")
-    
+            # self.socket.emit('server_message', mido_messages_sorted, namespace='/realtime', broadcast=True)    
+            self.socket.emit('server_message', mido_messages_sorted, namespace='/realtime')    

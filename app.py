@@ -1,6 +1,8 @@
+from flask import Flask, render_template, request, redirect, flash, jsonify, make_response, url_for,session
+
 # from gevent import monkey
 # monkey.patch_all()
-from flask import Flask, render_template, request, redirect, flash, jsonify, make_response, url_for,session
+
 from models.Predict import Predictor
 import os
 import json
